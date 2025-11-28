@@ -1,4 +1,5 @@
 ## 🏗️ Arquitetura do Sistema
+
 ```mermaid
 graph TB
     A[Python Collector] -->|Publish JSON| B[RabbitMQ]
@@ -15,7 +16,9 @@ graph TB
     style E fill:#47a248,stroke:#fff,color:#fff
     style F fill:#61dafb,stroke:#333,color:#333
 ```
+
 ### 📊 Fluxo de Dados
+
 ```mermaid
 sequenceDiagram
     participant P as Python
@@ -30,7 +33,7 @@ sequenceDiagram
         Open-Meteo-->>P: Dados climáticos
         P->>R: Publish mensagem
     end
-    
+
     loop Continuamente
         G->>R: Consume mensagem
         R-->>G: Dados do clima
@@ -38,7 +41,7 @@ sequenceDiagram
         N->>M: Salvar registro
         N-->>G: 201 Created
     end
-    
+
     F->>N: GET /api/weather/logs
     N->>M: Query dados
     M-->>N: Resultados
@@ -46,6 +49,7 @@ sequenceDiagram
 ```
 
 ## Backend (NestJS)
+
 - [ ] Setup inicial + Docker
 - [ ] Conexão MongoDB
 - [ ] Endpoint POST /api/weather/logs (recebe do Go)
@@ -56,6 +60,7 @@ sequenceDiagram
 - [ ] Insights de IA
 
 ## Go Worker
+
 - [ ] Conexão RabbitMQ
 - [ ] Consumer da fila
 - [ ] HTTP client para NestJS
@@ -63,12 +68,14 @@ sequenceDiagram
 - [ ] Logs estruturados
 
 ## Python Collector
+
 - [ ] Integração Open-Meteo
 - [ ] Cron/scheduler
 - [ ] Producer RabbitMQ
 - [ ] Tratamento de erros
 
 ## Frontend (React)
+
 - [ ] Setup Vite + Tailwind + shadcn
 - [ ] Tela de login
 - [ ] Dashboard com gráficos
@@ -77,6 +84,7 @@ sequenceDiagram
 - [ ] (Opcional) Página API pública
 
 ## Infra
+
 - [ ] Docker Compose funcional
 - [ ] .env configurável
 - [ ] README completo
