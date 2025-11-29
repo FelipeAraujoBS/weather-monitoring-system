@@ -50,8 +50,8 @@ sequenceDiagram
 
 ## Backend (NestJS)
 
-- [ ] Setup inicial + Docker
-- [ ] Conexão MongoDB
+- ✅ Setup inicial + Docker
+- ✅ Conexão MongoDB
 - [ ] Endpoint POST /api/weather/logs (recebe do Go)
 - [ ] Endpoint GET /api/weather/logs (lista dados)
 - [ ] Auth JWT + usuário padrão
