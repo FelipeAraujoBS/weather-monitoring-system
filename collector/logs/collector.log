@@ -1,0 +1,73 @@
+2025-11-30 12:31:12 | INFO     | __main__:main:70 - 🚀 Iniciando Data Collector
+2025-11-30 12:31:12 | INFO     | __main__:main:71 - API URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 12:31:12 | INFO     | __main__:main:72 - RabbitMQ: localhost:5672
+2025-11-30 12:31:12 | INFO     | __main__:main:73 - Fila: weather_queue
+2025-11-30 12:34:06 | INFO     | __main__:main:70 - 🚀 Iniciando Data Collector
+2025-11-30 12:34:06 | INFO     | __main__:main:71 - API URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 12:34:06 | INFO     | __main__:main:72 - RabbitMQ: localhost:5672
+2025-11-30 12:34:06 | INFO     | __main__:main:73 - Fila: weather_queue
+2025-11-30 12:34:46 | INFO     | __main__:main:70 - 🚀 Iniciando Data Collector
+2025-11-30 12:34:46 | INFO     | __main__:main:71 - API URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 12:34:46 | INFO     | __main__:main:72 - RabbitMQ: localhost:5672
+2025-11-30 12:34:46 | INFO     | __main__:main:73 - Fila: weather_queue
+2025-11-30 12:37:00 | INFO     | __main__:main:70 - 🚀 Iniciando Data Collector
+2025-11-30 12:37:00 | INFO     | __main__:main:71 - API URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 12:37:00 | INFO     | __main__:main:72 - RabbitMQ: localhost:5672
+2025-11-30 12:37:00 | INFO     | __main__:main:73 - Fila: weather_queue
+2025-11-30 12:40:49 | INFO     | __main__:main:70 - 🚀 Iniciando Data Collector
+2025-11-30 12:40:49 | INFO     | __main__:main:71 - API URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 12:40:49 | INFO     | __main__:main:72 - RabbitMQ: localhost:5672
+2025-11-30 12:40:49 | INFO     | __main__:main:73 - Fila: weather_queue
+2025-11-30 12:46:48 | INFO     | __main__:main:70 - 🚀 Iniciando Data Collector
+2025-11-30 12:46:48 | INFO     | __main__:main:71 - API URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 12:46:48 | INFO     | __main__:main:72 - RabbitMQ: localhost:5672
+2025-11-30 12:46:48 | INFO     | __main__:main:73 - Fila: weather_queue
+2025-11-30 12:46:48 | INFO     | __main__:start_scheduler:46 - Iniciando collector com intervalo de 300s
+2025-11-30 12:46:48 | ERROR    | src.rabbitmq_publisher:connect:40 - Erro ao conectar ao RabbitMQ: 'Settings' object has no attribute 'RABBITMQ_USER'
+2025-11-30 12:49:26 | INFO     | __main__:main:70 - 🚀 Iniciando Data Collector
+2025-11-30 12:49:26 | INFO     | __main__:main:71 - API URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 12:49:26 | INFO     | __main__:main:72 - RabbitMQ: localhost:5672
+2025-11-30 12:49:26 | INFO     | __main__:main:73 - Fila: weather_queue
+2025-11-30 12:49:26 | INFO     | __main__:start_scheduler:46 - Iniciando collector com intervalo de 300s
+2025-11-30 12:49:30 | ERROR    | src.rabbitmq_publisher:connect:40 - Erro ao conectar ao RabbitMQ: 
+2025-11-30 12:56:05 | INFO     | __main__:main:70 - 🚀 Iniciando Data Collector
+2025-11-30 12:56:05 | INFO     | __main__:main:71 - API URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 12:56:05 | INFO     | __main__:main:72 - RabbitMQ: localhost:5672
+2025-11-30 12:56:05 | INFO     | __main__:main:73 - Fila: weather_queue
+2025-11-30 12:56:05 | INFO     | __main__:start_scheduler:46 - Iniciando collector com intervalo de 300s
+2025-11-30 12:56:05 | ERROR    | src.rabbitmq_publisher:connect:40 - Erro ao conectar ao RabbitMQ: 'Logger' object has no attribute 'sucess'
+2025-11-30 12:57:06 | INFO     | __main__:main:70 - 🚀 Iniciando Data Collector
+2025-11-30 12:57:06 | INFO     | __main__:main:71 - API URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 12:57:06 | INFO     | __main__:main:72 - RabbitMQ: localhost:5672
+2025-11-30 12:57:06 | INFO     | __main__:main:73 - Fila: weather_queue
+2025-11-30 12:57:06 | INFO     | __main__:start_scheduler:46 - Iniciando collector com intervalo de 300s
+2025-11-30 12:57:06 | SUCCESS  | src.rabbitmq_publisher:connect:37 - Conectado ao RabbitMQ: localhost:5672 com sucesso.
+2025-11-30 12:57:06 | INFO     | __main__:run:24 - ============================================================
+2025-11-30 12:57:06 | INFO     | __main__:run:25 - Iniciando coleta de dados...
+2025-11-30 12:57:06 | INFO     | src.api_consumer:fetch:37 - Buscando dados de: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 12:57:07 | SUCCESS  | src.api_consumer:fetch:48 - ✓ Dados recebidos com sucesso
+2025-11-30 12:57:07 | INFO     | __main__:run:29 - Dados recebidos: 1 item(s)
+2025-11-30 12:57:07 | INFO     | __main__:run:33 - Dados normalizados: 1 item(s)
+2025-11-30 12:57:07 | INFO     | src.rabbitmq_publisher:publish:67 - 1 mensagens publicadas na fila weather_queue com sucesso.
+2025-11-30 12:57:07 | SUCCESS  | __main__:run:38 - ✓ Coleta finalizada com sucesso! 1 mensagens enviadas
+2025-11-30 12:57:07 | INFO     | __main__:run:39 - ============================================================
+2025-11-30 13:02:08 | INFO     | __main__:run:24 - ============================================================
+2025-11-30 13:02:08 | INFO     | __main__:run:25 - Iniciando coleta de dados...
+2025-11-30 13:02:08 | INFO     | src.api_consumer:fetch:37 - Buscando dados de: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 13:02:09 | SUCCESS  | src.api_consumer:fetch:48 - ✓ Dados recebidos com sucesso
+2025-11-30 13:02:09 | INFO     | __main__:run:29 - Dados recebidos: 1 item(s)
+2025-11-30 13:02:09 | INFO     | __main__:run:33 - Dados normalizados: 1 item(s)
+2025-11-30 13:02:09 | INFO     | src.rabbitmq_publisher:publish:67 - 1 mensagens publicadas na fila weather_queue com sucesso.
+2025-11-30 13:02:09 | SUCCESS  | __main__:run:38 - ✓ Coleta finalizada com sucesso! 1 mensagens enviadas
+2025-11-30 13:02:09 | INFO     | __main__:run:39 - ============================================================
+2025-11-30 13:07:09 | INFO     | __main__:run:24 - ============================================================
+2025-11-30 13:07:09 | INFO     | __main__:run:25 - Iniciando coleta de dados...
+2025-11-30 13:07:09 | INFO     | src.api_consumer:fetch:37 - Buscando dados de: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+2025-11-30 13:07:10 | SUCCESS  | src.api_consumer:fetch:48 - ✓ Dados recebidos com sucesso
+2025-11-30 13:07:10 | INFO     | __main__:run:29 - Dados recebidos: 1 item(s)
+2025-11-30 13:07:10 | INFO     | __main__:run:33 - Dados normalizados: 1 item(s)
+2025-11-30 13:07:10 | INFO     | src.rabbitmq_publisher:publish:67 - 1 mensagens publicadas na fila weather_queue com sucesso.
+2025-11-30 13:07:10 | SUCCESS  | __main__:run:38 - ✓ Coleta finalizada com sucesso! 1 mensagens enviadas
+2025-11-30 13:07:10 | INFO     | __main__:run:39 - ============================================================
+2025-11-30 13:07:21 | WARNING  | __main__:start_scheduler:63 - Collector interrompido pelo usuário
+2025-11-30 13:07:21 | INFO     | src.rabbitmq_publisher:close:80 - Conexão com o RabbitMQ fechada com sucesso.

@@ -19,6 +19,11 @@ services:
       - mongo_data:/data/db
     networks:
       - gdash_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # 2.2 Fila de Mensagens (RabbitMQ)
   rabbitmq:
@@ -35,8 +40,50 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
       - gdash_network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # 2.3 Serviço de API (Nest.JS)
+  # 2.3 Collector Python (Coleta de dados)
+  collector:
+    build:
+      context: ./collector
+      dockerfile: Dockerfile
+    container_name: collector_container
+    restart: unless-stopped
+    environment:
+      # RabbitMQ
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: rabbituser
+      RABBITMQ_PASSWORD: rabbitpass
+      RABBITMQ_QUEUE: weather_queue
+      RABBITMQ_EXCHANGE: ""
+
+      # API Open-Meteo
+      API_URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code
+      API_TOKEN: ""
+      API_TIMEOUT: 30
+
+      # Collector Config
+      COLLECTION_INTERVAL: 300
+      MAX_RETRIES: 3
+      RETRY_DELAY: 5
+
+      # Logging
+      LOG_LEVEL: INFO
+      LOG_FILE: logs/collector.log
+    volumes:
+      - ./collector/logs:/app/logs
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - gdash_network
+
+  # 2.4 Serviço de API (Nest.JS)
   api_service:
     build:
       context: ./api
@@ -50,8 +97,10 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - mongodb
-      - rabbitmq
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - gdash_network
 

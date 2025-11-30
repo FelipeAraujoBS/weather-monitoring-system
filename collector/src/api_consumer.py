@@ -1,13 +1,13 @@
 import requests 
 from typing import Any, Dict, Optional
-from tenacity import retry, stop_after_attempt, wait_expornential 
-from src.config import setting
+from tenacity import retry, stop_after_attempt, wait_exponential 
+from src.config import settings
 from src.utils.logger import log
 
 class APIConsumer: 
-    def __init__(sefl):
-        self.base_url = setting.api_url
-        self.timeout = setting.api_timeout
+    def __init__(self):
+        self.base_url = settings.api_url
+        self.timeout = settings.api_timeout
         self.headers = self._build_headers()
 
     def _build_headers(self) -> Dict[str, str]:
@@ -17,8 +17,8 @@ class APIConsumer:
             "User-Agent": "DataCollector/1.0"
         }
 
-        if setting.api_key:
-            headers["Authorization"] = f"Bearer {setting.api_key}"
+        if settings.api_token:
+            headers["Authorization"] = f"Bearer {settings.api_token}"
 
         return headers
     

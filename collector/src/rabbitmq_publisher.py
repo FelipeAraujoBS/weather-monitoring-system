@@ -12,17 +12,17 @@ class RabbitMQPublisher:
     """Classe para publicar mensagens no RabbitMQ."""
 
     def __init__(self):
-        self.host = settings.RABBITMQ_HOST
-        self.port = settings.RABBITMQ_PORT
-        self.queue = settings.RABBITMQ_QUEUE
-        self.exchange = settings.RABBITMQ_EXCHANGE
+        self.host = settings.rabbitmq_host
+        self.port = settings.rabbitmq_port
+        self.queue = settings.rabbitmq_queue
+        self.exchange = settings.rabbitmq_exchange
         self.connection = None
         self.channel = None
 
     def connect(self):
         """Estabelece conexão com o RabbitMQ."""
         try:
-            credentials = pika.PlainCredentials(settings.RABBITMQ_USER, settings.RABBITMQ_PASSWORD)
+            credentials = pika.PlainCredentials(settings.rabbitmq_user, settings.rabbitmq_password)
             parameters = pika.ConnectionParameters(host=self.host, port=self.port, credentials=credentials, heartbeat=600, blocked_connection_timeout=300)
 
             self.connection = pika.BlockingConnection(parameters)
@@ -34,7 +34,7 @@ class RabbitMQPublisher:
                 arguments={"x-message-ttl": 86400000}  # Mensagens expiram após 24 horas
             )
 
-            log.sucess(f"Conectado ao RabbitMQ: {self.host}:{self.port} com sucesso.")
+            log.success(f"Conectado ao RabbitMQ: {self.host}:{self.port} com sucesso.")
 
         except Exception as e:
             log.error(f"Erro ao conectar ao RabbitMQ: {e}")
