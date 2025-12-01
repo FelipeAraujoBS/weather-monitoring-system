@@ -10,31 +10,7 @@ networks:
 # Serviços
 services:
   # ============================================================================
-  # 1. INFRAESTRUTURA - Banco de Dados
-  # ============================================================================
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb_container
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: rootuser
-      MONGO_INITDB_ROOT_PASSWORD: rootpass
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-      - mongo_config:/data/configdb
-    networks:
-      - gdash_network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-
-  # ============================================================================
-  # 2. INFRAESTRUTURA - Fila de Mensagens
+  # 1. INFRAESTRUTURA - Fila de Mensagens
   # ============================================================================
   rabbitmq:
     image: rabbitmq:3-management
@@ -58,7 +34,7 @@ services:
       start_period: 10s
 
   # ============================================================================
-  # 3. API - Backend NestJS
+  # 2. API - Backend NestJS
   # ============================================================================
   api_service:
     build:
@@ -67,15 +43,13 @@ services:
     container_name: api_gdash
     restart: unless-stopped
     environment:
-      MONGO_URI: mongodb://rootuser:rootpass@mongodb:27017/gdash?authSource=admin
       RABBITMQ_URL: amqp://rabbituser:rabbitpass@rabbitmq:5672
       NODE_ENV: production
-      PORT: 5000
     ports:
       - "5000:5000"
+    env_file:
+      - .env
     depends_on:
-      mongodb:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     networks:
@@ -96,7 +70,7 @@ services:
       start_period: 30s
 
   # ============================================================================
-  # 4. COLLECTOR - Coleta de Dados (Python)
+  # 3. COLLECTOR - Coleta de Dados (Python)
   # ============================================================================
   collector:
     build:
@@ -140,7 +114,7 @@ services:
       start_period: 10s
 
   # ============================================================================
-  # 5. WORKER - Consumidor da Fila (Go)
+  # 4. WORKER - Consumidor da Fila (Go)
   # ============================================================================
   worker:
     build:
@@ -173,10 +147,6 @@ services:
 # VOLUMES PERSISTENTES
 # ==============================================================================
 volumes:
-  mongo_data:
-    driver: local
-  mongo_config:
-    driver: local
   rabbitmq_data:
     driver: local
   collector_logs:

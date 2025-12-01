@@ -17,7 +17,6 @@ func StartWorker(cfg *config.Config) {
 				time.Sleep(5 * time.Second)
 				return
 			}
-			// defer no escopo da função anônima: será executado quando a função anônima terminar
 			defer func() {
 				if err := conn.Close(); err != nil {
 					log.Printf("Error closing conn: %v", err)
@@ -35,7 +34,7 @@ func StartWorker(cfg *config.Config) {
 				}
 			}()
 
-			log.Println("Connected")
+			log.Println("✅ Connected to RabbitMQ")
 
 			if err := consumeMessages(ch, cfg); err != nil {
 				log.Printf("Consume error: %v", err)
@@ -50,10 +49,10 @@ func StartWorker(cfg *config.Config) {
 func consumeMessages(ch *amqp.Channel, cfg *config.Config) error {
 	_, err := ch.QueueDeclarePassive(
 		cfg.QueueName,
-		true,  // durable
-		false, // auto-delete
-		false, // exclusive
-		false, // no-wait
+		true,
+		false,
+		false,
+		false,
 		nil,
 	)
 	if err != nil {
@@ -66,8 +65,8 @@ func consumeMessages(ch *amqp.Channel, cfg *config.Config) error {
 
 	msgs, err := ch.Consume(
 		cfg.QueueName,
-		"",    // consumer tag
-		false, // auto-ack = false (manual ack)
+		"",
+		false,
 		false,
 		false,
 		false,
@@ -77,25 +76,39 @@ func consumeMessages(ch *amqp.Channel, cfg *config.Config) error {
 		return err
 	}
 
-	// Processa mensagens até msgs ser fechado (quando a conexão/chanel é fechado)
+	log.Println("🎧 Waiting for messages...")
+
 	for d := range msgs {
-		log.Printf("Received a message: %s", string(d.Body))
-		if ProcessAndSend(d.Body, cfg) {
+		log.Printf("📨 Received message from Collector")
+		
+		// ✅ TRANSFORMAR OS DADOS
+		transformedData, err := TransformCollectorData(d.Body)
+		if err != nil {
+			log.Printf("❌ Error transforming data: %v", err)
+			// Dados inválidos, não adianta fazer retry
+			if err := d.Ack(false); err != nil {
+				log.Printf("Ack error: %v", err)
+			}
+			continue
+		}
+
+		log.Println("✅ Data transformed successfully")
+
+		// ENVIAR DADOS TRANSFORMADOS
+		if ProcessAndSend(transformedData, cfg) {
 			if err := d.Ack(false); err != nil {
 				log.Printf("Ack error: %v", err)
 			} else {
-				log.Printf("Message processed and acknowledged")
+				log.Println("✅ Message processed and acknowledged")
 			}
 		} else {
-			// simples: requeue (true). Em produção, prefira controlar tentativas e DLQ.
 			if err := d.Nack(false, true); err != nil {
 				log.Printf("Nack error: %v", err)
 			} else {
-				log.Printf("Message processing failed, message requeued")
+				log.Println("⚠️ Message processing failed, message requeued")
 			}
 		}
 	}
 
-	// quando chegamos aqui msgs foi fechado -> encerramos consumeMessages para permitir reconexão
 	return nil
 }
