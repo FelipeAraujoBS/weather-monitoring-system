@@ -1,15 +1,18 @@
+// src/app.module.ts (Atualizado)
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { WeatherModule } from './weather/weather.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGO_URI!), //Não é o ideal, mas em um ambiente onde eu sei que o .env sempre terá a variável, posso usar o "!" para garantir que não é nulo
+    MongooseModule.forRoot(process.env.MONGO_URI!),
+    WeatherModule,
   ],
   controllers: [AppController],
   providers: [AppService],

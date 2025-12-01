@@ -34,7 +34,7 @@
     COPY --from=builder /app/dist ./dist
     
     # Expõe a porta que o NestJS estará ouvindo
-    EXPOSE 3000
+    EXPOSE 5000
     
     # Comando para rodar a aplicação em produção
     CMD ["node", "dist/main"]
