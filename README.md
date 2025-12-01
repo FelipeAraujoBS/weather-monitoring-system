@@ -57,7 +57,7 @@ sequenceDiagram
 - ✅ Auth JWT + usuário padrão
 - ✅ CRUD usuários
 - ✅ Exportação CSV/XLSX
-- [ ] Insights de IA
+- ✅ Insights de IA
 
 ## Go Worker
 
