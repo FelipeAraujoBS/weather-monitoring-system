@@ -76,7 +76,7 @@ sequenceDiagram
 
 ## Frontend (React)
 
-- [ ] Setup Vite + Tailwind + shadcn
+- ✅ Setup Vite + Tailwind + shadcn
 - [ ] Tela de login
 - [ ] Dashboard com gráficos
 - [ ] Tabela de dados + exportação
