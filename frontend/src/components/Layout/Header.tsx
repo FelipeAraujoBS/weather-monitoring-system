@@ -1,6 +1,6 @@
 import React from "react";
 import { Cloud, LogOut } from "lucide-react";
-import type { HeaderProps } from "../../../types/index";
+import type { HeaderProps } from "../../types/index";
 
 const Header: React.FC<HeaderProps> = ({ onLogout }) => {
   return (

@@ -9,7 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import type { WeatherChartProps } from "../../../types";
+import type { WeatherChartProps } from "../../types";
 
 const WeatherChart: React.FC<WeatherChartProps> = ({ data }) => {
   return (

@@ -1,5 +1,5 @@
 import React from "react";
-import type { StatsCardProps } from "../../../types";
+import type { StatsCardProps } from "../../types";
 
 const StatsCard: React.FC<StatsCardProps> = ({
   title,

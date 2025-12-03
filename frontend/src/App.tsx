@@ -1,8 +1,8 @@
 import { useState } from "react";
-import LandingPage from "./components/components/pages/LandingPage";
-import LoginPage from "./components/components/pages/LoginPage";
-import RegisterPage from "./components/components/pages/RegisterPage";
-import Dashboard from "./components/components/pages/Dashboard";
+import LandingPage from "./components/pages/LandingPage";
+import LoginPage from "./components/pages/LoginPage";
+import RegisterPage from "./components/pages/RegisterPage";
+import Dashboard from "./components/pages/Dashboard";
 import type { PageType } from "./types/index";
 
 function App() {

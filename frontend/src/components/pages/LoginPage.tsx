@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Cloud } from "lucide-react";
 import Input from "../common/Input";
-import type { LoginPageProps } from "../../../types/index";
+import { Button } from "../common/button";
+import type { LoginPageProps } from "../../types/index";
 
 const LoginPage: React.FC<LoginPageProps> = ({
   onLogin,
@@ -45,12 +46,12 @@ const LoginPage: React.FC<LoginPageProps> = ({
             placeholder="••••••••"
           />
 
-          <button
+          <Button
             onClick={handleSubmit}
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             Entrar
-          </button>
+          </Button>
         </div>
 
         <p className="text-center text-sm text-gray-600 mt-6">

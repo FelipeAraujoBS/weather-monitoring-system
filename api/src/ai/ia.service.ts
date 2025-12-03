@@ -12,7 +12,7 @@ export class AiService {
     const apiKey = this.configService.get<string>('AI_API_KEY');
 
     if (!apiKey) {
-      throw new Error('GEMINI_API_KEY não configurada no .env');
+      throw new Error('AI_API_KEY não configurada no .env');
     }
 
     this.genAI = new GoogleGenerativeAI(apiKey);

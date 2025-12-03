@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Cloud } from "lucide-react";
 import Input from "../common/Input";
-import type { RegisterPageProps } from "../../../types";
+import { Button } from "../common/button";
+import type { RegisterPageProps } from "../../types";
 
 interface FormData {
   name: string;
@@ -76,22 +77,22 @@ const RegisterPage: React.FC<RegisterPageProps> = ({
             placeholder="••••••••"
           />
 
-          <button
+          <Button
             onClick={handleSubmit}
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             Cadastrar
-          </button>
+          </Button>
         </div>
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Já tem uma conta?{" "}
-          <button
+          <Button
             onClick={onNavigateToLogin}
-            className="text-blue-600 hover:underline font-medium"
+            className="bg-blue-600 text-white hover:bg-blue-700 font-medium"
           >
             Faça login
-          </button>
+          </Button>
         </p>
       </div>
     </div>
