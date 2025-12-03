@@ -58,16 +58,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     },
   ];
 
-  // Stats adicionais (opcional - você pode adicionar mais cards)
-  const additionalStats: StatsCardProps[] = [
-    {
-      title: "Sensação Térmica",
-      value: loading ? "..." : `${currentStats.feelsLike}°C`,
-      icon: Thermometer,
-      iconColor: "text-red-500",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header onLogout={onLogout} />

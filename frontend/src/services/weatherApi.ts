@@ -5,7 +5,7 @@ import type {
   WeatherDocument,
   WeatherStats,
   WeatherData,
-  AiInsight,
+  AiInsightResponse, // ✅ Novo tipo
 } from "../types";
 
 export class WeatherApiService {
@@ -45,33 +45,36 @@ export class WeatherApiService {
   /**
    * Busca o último dado meteorológico
    */
-  static async getLatestWeather(): Promise<WeatherDocument> {
-    const response = await this.request<WeatherDocument>(
-      API_CONFIG.ENDPOINTS.WEATHER_LATEST
-    );
+  static async getLatestWeather(): Promise<{
+    message: string;
+    data: WeatherDocument;
+  }> {
+    const response = await this.request<{
+      message: string;
+      data: WeatherDocument;
+    }>(API_CONFIG.ENDPOINTS.WEATHER_LATEST);
     return response;
   }
 
   /**
    * Busca histórico de dados meteorológicos
-   * ✅ CORRIGIDO: Agora verifica se é array ou objeto
    */
   static async getWeatherHistory(): Promise<WeatherDocument[]> {
     const response = await this.request<
       WeatherDocument[] | { data: WeatherDocument[] }
     >(API_CONFIG.ENDPOINTS.WEATHER_HISTORY);
 
-    // ✅ Se a resposta for um objeto com propriedade 'data', retorna data
+    // Se a resposta for um objeto com propriedade 'data', retorna data
     if (response && typeof response === "object" && "data" in response) {
       return response.data;
     }
 
-    // ✅ Se já for um array, retorna direto
+    // Se já for um array, retorna direto
     if (Array.isArray(response)) {
       return response;
     }
 
-    // ✅ Se não for nenhum dos dois, retorna array vazio
+    // Se não for nenhum dos dois, retorna array vazio
     console.warn("Formato de resposta inesperado do histórico:", response);
     return [];
   }
@@ -85,9 +88,10 @@ export class WeatherApiService {
 
   /**
    * Gera insight de IA para um registro específico
+   * ✅ CORRIGIDO: Retorna AiInsightResponse que contém data.aiInsight
    */
-  static async generateInsight(weatherId: string): Promise<AiInsight> {
-    return await this.request<AiInsight>(
+  static async generateInsight(weatherId: string): Promise<AiInsightResponse> {
+    return await this.request<AiInsightResponse>(
       API_CONFIG.ENDPOINTS.WEATHER_INSIGHT(weatherId),
       { method: "POST" }
     );
@@ -95,10 +99,8 @@ export class WeatherApiService {
 
   /**
    * Converte histórico para formato do gráfico (últimas 24 horas)
-   * ✅ CORRIGIDO: Validação mais robusta
    */
   static formatWeatherDataForChart(history: WeatherDocument[]): WeatherData[] {
-    // ✅ Validação: verifica se é array válido
     if (!Array.isArray(history) || history.length === 0) {
       console.warn("Histórico vazio ou inválido");
       return [];
@@ -153,12 +155,3 @@ export class WeatherApiService {
     };
   }
 }
-
-// ✅ EXEMPLO: Para testar a resposta da sua API, adicione isto temporariamente
-// no hook useWeatherData para ver o formato exato:
-/*
-const history = await WeatherApiService.getWeatherHistory();
-console.log('📊 FORMATO DO HISTÓRICO:', history);
-console.log('📊 É array?', Array.isArray(history));
-console.log('📊 Tipo:', typeof history);
-*/

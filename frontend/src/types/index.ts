@@ -94,7 +94,23 @@ export interface AiInsight {
   alerts: string[];
   recommendations: string[];
   trends: string;
-  generatedAt: Date;
+  generatedAt: string; // ✅ Data de geração do insight
+}
+
+// ✅ NOVO: Tipo para a resposta do generateInsight
+export interface AiInsightResponse {
+  message: string;
+  data: {
+    _id: string;
+    timestamp: string;
+    source: string;
+    location: Location;
+    current: CurrentWeather;
+    daily: DailyWeather;
+    aiInsight: AiInsight; // ✅ O insight está aqui dentro
+    createdAt: string;
+    updatedAt: string;
+  };
 }
 
 export interface WeatherDocument {

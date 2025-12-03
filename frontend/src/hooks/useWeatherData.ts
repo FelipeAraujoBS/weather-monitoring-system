@@ -54,21 +54,28 @@ export const useWeatherData = (): UseWeatherDataReturn => {
       setLoading(true);
       setError(null);
 
-      console.log("🔄 Buscando dados meteorológicos...");
+      console.log("📄 Buscando dados meteorológicos...");
 
-      // Busca dados atuais (Retorna { message: "...", data: WeatherDocument })
+      // Busca dados atuais
       const latestResponse = await WeatherApiService.getLatestWeather();
 
-      // 💡 CORREÇÃO 1: Extrai o WeatherDocument da propriedade 'data'
+      // Extrai o WeatherDocument da propriedade 'data'
       const latestDocument = latestResponse.data;
 
       console.log("✅ Dados atuais:", latestDocument);
-      setCurrentWeather(latestDocument); // 💡 Atualiza o state com o documento correto
+      setCurrentWeather(latestDocument);
 
-      // ... (Busca histórico, que está correta)
+      // Busca histórico
+      const history = await WeatherApiService.getWeatherHistory();
+      console.log("📊 Histórico recebido:", history);
+
+      // Formata dados para o gráfico
+      const formattedData =
+        WeatherApiService.formatWeatherDataForChart(history);
+      console.log("📈 Dados formatados para o gráfico:", formattedData);
+      setChartData(formattedData);
 
       // Obtém estatísticas atuais
-      // 💡 CORREÇÃO 2: Passa o documento extraído para getCurrentStats
       const stats = WeatherApiService.getCurrentStats(latestDocument);
       console.log("📊 Estatísticas atuais:", stats);
       setCurrentStats(stats);
@@ -98,10 +105,18 @@ export const useWeatherData = (): UseWeatherDataReturn => {
       setGeneratingInsight(true);
       console.log("🤖 Gerando insight para ID:", currentWeather._id);
 
-      const insight = await WeatherApiService.generateInsight(
+      // ✅ CORREÇÃO: A resposta vem como { message: "...", data: { aiInsight: {...} } }
+      const response = await WeatherApiService.generateInsight(
         currentWeather._id
       );
-      console.log("✅ Insight gerado:", insight);
+
+      console.log("📦 Resposta completa:", response);
+
+      // ✅ Extrai o aiInsight de dentro de data.aiInsight
+      const insight =
+        response.data?.aiInsight || response.data.aiInsight || response;
+
+      console.log("✅ Insight extraído:", insight);
 
       // Atualiza o currentWeather com o novo insight
       setCurrentWeather({
@@ -138,6 +153,3 @@ export const useWeatherData = (): UseWeatherDataReturn => {
     generatingInsight,
   };
 };
-
-// ✅ REMOVER OS CONSOLE.LOGS DEPOIS DE DEBUGAR
-// Eles vão te mostrar exatamente o formato que sua API está retornando

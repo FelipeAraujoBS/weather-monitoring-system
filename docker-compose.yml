@@ -136,12 +136,47 @@ services:
         condition: service_healthy
     networks:
       - gdash_network
-
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
+  # ============================================================================
+  # 5. FRONTEND - React + Vite + Tailwind
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: weather_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80" # Nginx serve na porta 80
+      - "443:443" # Para HTTPS (opcional)
+    depends_on:
+      api_service:
+        condition: service_healthy
+    networks:
+      - gdash_network
+    environment:
+      # A URL da API deve ser acessível do navegador do usuário
+      # Use o IP/domínio do seu servidor, não localhost se for acessar de outro PC
+      VITE_API_URL: http://localhost:5000/api
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
 # ==============================================================================
 # VOLUMES PERSISTENTES
