@@ -204,7 +204,7 @@ const Dashboard: React.FC = () => {
 
             {/* Info de última atualização */}
             {currentWeather && (
-              <div className="mt-6 p-4 bg-white rounded-lg shadow">
+              <div className="mt-6 p-4 bg-white rounded-lg shadow position-relative">
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <div>
                     <span className="font-medium">Última atualização:</span>{" "}

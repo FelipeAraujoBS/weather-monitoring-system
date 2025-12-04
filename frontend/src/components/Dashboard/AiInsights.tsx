@@ -15,7 +15,7 @@ const AiInsights: React.FC<AiInsightsProps> = ({
   onGenerateInsight,
   generatingInsight,
 }) => {
-  // ✅ Função para formatar a data corretamente
+  //format a data
   const formatDate = (dateString?: string) => {
     if (!dateString) return "Data não disponível";
 

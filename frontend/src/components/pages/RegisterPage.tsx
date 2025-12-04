@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/AuthContext";
 
 interface FormData {
-  name: string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -14,7 +13,6 @@ interface FormData {
 
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
-    name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -23,9 +21,9 @@ const RegisterPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
-    const { name, email, password, confirmPassword } = formData;
+    const { email, password, confirmPassword } = formData;
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       alert("Por favor, preencha todos os campos.");
       return;
     } else if (password !== confirmPassword) {
@@ -34,14 +32,12 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      await register({ name, email, password });
+      await register({ email, password });
 
-      // Se o registro for SUCESSO, o useAuth já salvou o token e definiu isAuthenticated=true.
       // Navega para o Dashboard.
       navigate("/dashboard", { replace: true });
     } catch (err) {
       console.error(err);
-      // O erro já está em 'authError'
     }
   };
 
@@ -76,14 +72,6 @@ const RegisterPage: React.FC = () => {
         </h2>
 
         <div className="space-y-4">
-          <Input
-            label="Nome"
-            type="text"
-            value={formData.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-            placeholder="Seu nome"
-          />
-
           <Input
             label="Email"
             type="email"
