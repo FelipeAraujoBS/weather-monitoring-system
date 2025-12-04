@@ -1,19 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Cloud } from "lucide-react";
 import Input from "../common/Input";
 import { Button } from "../common/button";
-import type { LoginPageProps } from "../../types/index";
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../../context/AuthContext";
 
-const LoginPage: React.FC<LoginPageProps> = ({
-  onLogin,
-  onNavigateToRegister,
-}) => {
+const LoginPage: React.FC = () => {
+  const {
+    login,
+    loading: isLoading,
+    error: authError,
+    isAuthenticated,
+  } = useAuthContext();
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
-  const handleSubmit = (): void => {
-    if (email && password) {
-      onLogin();
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  if (isAuthenticated) {
+    return null;
+  }
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      return;
+    }
+
+    try {
+      await login({ email, password });
+
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      console.error("Erro ao fazer login:", err);
     }
   };
 
@@ -46,6 +72,12 @@ const LoginPage: React.FC<LoginPageProps> = ({
             placeholder="••••••••"
           />
 
+          {authError && (
+            <p className="text-red-500 text-sm text-center font-medium">
+              {authError}
+            </p>
+          )}
+
           <Button
             onClick={handleSubmit}
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
@@ -57,7 +89,7 @@ const LoginPage: React.FC<LoginPageProps> = ({
         <p className="text-center text-sm text-gray-600 mt-6">
           Não tem uma conta?{" "}
           <button
-            onClick={onNavigateToRegister}
+            onClick={() => navigate("/register")}
             className="text-blue-600 hover:underline font-medium"
           >
             Cadastre-se

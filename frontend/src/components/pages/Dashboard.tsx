@@ -17,8 +17,10 @@ import { useWeatherData } from "../../hooks/useWeatherData";
 import type { DashboardProps, StatsCardProps } from "../../types";
 import { Button } from "../common/button";
 import { Alert, AlertDescription, AlertTitle } from "../common/alert";
+import { useAuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
+const Dashboard: React.FC = () => {
   const {
     chartData,
     currentStats,
@@ -30,7 +32,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     generatingInsight,
   } = useWeatherData();
 
-  // ✅ Stats agora vêm dos dados REAIS da API
+  const { logout } = useAuthContext();
+  const navigate = useNavigate();
+
+  const handleLogout = (): void => {
+    logout();
+
+    navigate("/login", { replace: true });
+  };
+
   const stats: StatsCardProps[] = [
     {
       title: "Temperatura",
@@ -60,7 +70,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onLogout={onLogout} />
+      <Header onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header com localização e botão de atualizar */}

@@ -157,7 +157,10 @@ export interface RegisterData {
 }
 
 export interface AuthResponse {
-  access_token: string;
+  data: {
+    access_token: string;
+  };
+  acess_token: string;
   user: {
     id: string;
     email: string;

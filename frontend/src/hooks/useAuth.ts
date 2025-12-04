@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AuthApiService } from "../services/authApi";
 import type { LoginCredentials, RegisterData, User } from "../types";
 
-interface UseAuthReturn {
+export interface UseAuthReturn {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
@@ -24,7 +24,7 @@ export const useAuth = (): UseAuthReturn => {
       setError(null);
 
       const response = await AuthApiService.login(credentials);
-      AuthApiService.saveToken(response.access_token);
+      AuthApiService.saveToken(response.data.access_token);
       setIsAuthenticated(true);
     } catch (err) {
       const errorMessage =
@@ -42,7 +42,7 @@ export const useAuth = (): UseAuthReturn => {
       setError(null);
 
       const response = await AuthApiService.register(data);
-      AuthApiService.saveToken(response.access_token);
+      AuthApiService.saveToken(response.data.access_token);
       setIsAuthenticated(true);
     } catch (err) {
       const errorMessage =

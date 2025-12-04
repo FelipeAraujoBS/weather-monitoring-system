@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Cloud } from "lucide-react";
 import Input from "../common/Input";
 import { Button } from "../common/button";
-import type { RegisterPageProps } from "../../types";
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../../context/AuthContext";
 
 interface FormData {
   name: string;
@@ -11,10 +12,7 @@ interface FormData {
   confirmPassword: string;
 }
 
-const RegisterPage: React.FC<RegisterPageProps> = ({
-  onRegister,
-  onNavigateToLogin,
-}) => {
+const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -22,11 +20,44 @@ const RegisterPage: React.FC<RegisterPageProps> = ({
     confirmPassword: "",
   });
 
-  const handleSubmit = (): void => {
-    if (formData.password === formData.confirmPassword) {
-      onRegister();
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+
+    const { name, email, password, confirmPassword } = formData;
+
+    if (!name || !email || !password || !confirmPassword) {
+      alert("Por favor, preencha todos os campos.");
+      return;
+    } else if (password !== confirmPassword) {
+      alert("As senhas não coincidem.");
+      return;
+    }
+
+    try {
+      await register({ name, email, password });
+
+      // Se o registro for SUCESSO, o useAuth já salvou o token e definiu isAuthenticated=true.
+      // Navega para o Dashboard.
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      console.error(err);
+      // O erro já está em 'authError'
     }
   };
+
+  const {
+    register,
+    loading: isLoading,
+    error: authError,
+    isAuthenticated,
+  } = useAuthContext();
+
+  const navigate = useNavigate();
+
+  if (isAuthenticated) {
+    navigate("/dashboard", { replace: true });
+    return null;
+  }
 
   const handleChange = (field: keyof FormData, value: string): void => {
     setFormData({ ...formData, [field]: value });
@@ -88,7 +119,7 @@ const RegisterPage: React.FC<RegisterPageProps> = ({
         <p className="text-center text-sm text-gray-600 mt-6">
           Já tem uma conta?{" "}
           <Button
-            onClick={onNavigateToLogin}
+            onClick={() => navigate("/login")}
             className="bg-blue-600 text-white hover:bg-blue-700 font-medium"
           >
             Faça login
