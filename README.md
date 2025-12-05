@@ -1,4 +1,4 @@
-# 🌦️ Sistema de Monitoramento Climático - GDASH 2025/02
+# 🌦️ Sistema de Monitoramento Climático 
 
 Sistema distribuído para coleta, processamento e visualização de dados meteorológicos em tempo real, desenvolvido como parte do processo seletivo da GDASH.
 
