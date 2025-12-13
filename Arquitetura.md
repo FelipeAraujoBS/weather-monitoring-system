@@ -77,14 +77,14 @@ sequenceDiagram
 ## Frontend (React)
 
 - ✅ Setup Vite + Tailwind + shadcn
-- [ ] Tela de login
-- [ ] Dashboard com gráficos
-- [ ] Tabela de dados + exportação
-- [ ] CRUD usuários
-- [ ] (Opcional) Página API pública
+- ✅ Tela de login
+- ✅ Dashboard com gráficos
+- ✅ Tabela de dados + exportação
+- ✅ CRUD usuários
+- [ ] (Opcional) Página API pública //Não foi necessario, não iria acrescentar a intenção do site.
 
 ## Infra
 
 - ✅ Docker Compose funcional
 - ✅ .env configurável
-- [ ] README completo
+- ✅ README completo
