@@ -1,0 +1,188 @@
+# ==============================================================================
+# GDASH - Sistema de Coleta e Processamento de Dados
+# ==============================================================================
+
+# Redes
+networks:
+  gdash_network:
+    driver: bridge
+
+# Serviços
+services:
+  # ============================================================================
+  # 1. INFRAESTRUTURA - Fila de Mensagens
+  # ============================================================================
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_container
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbituser
+      RABBITMQ_DEFAULT_PASS: rabbitpass
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - gdash_network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ============================================================================
+  # 2. API - Backend NestJS
+  # ============================================================================
+  api_service:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api_gdash
+    restart: unless-stopped
+    environment:
+      RABBITMQ_URL: amqp://rabbituser:rabbitpass@rabbitmq:5672
+      NODE_ENV: production
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - gdash_network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5000/api",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # ============================================================================
+  # 3. COLLECTOR - Coleta de Dados (Python)
+  # ============================================================================
+  collector:
+    build:
+      context: ./collector
+      dockerfile: Dockerfile
+    container_name: collector_container
+    restart: unless-stopped
+    environment:
+      # RabbitMQ
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: rabbituser
+      RABBITMQ_PASSWORD: rabbitpass
+      RABBITMQ_QUEUE: weather_queue
+      RABBITMQ_EXCHANGE: ""
+
+      # API Externa - Open-Meteo (Salvador, Bahia)
+      API_URL: https://api.open-meteo.com/v1/forecast?latitude=-12.9714&longitude=-38.5014&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,apparent_temperature,precipitation,pressure_msl,cloud_cover,visibility,uv_index,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min&timezone=America/Bahia
+      API_TIMEOUT: 30
+
+      # Configurações do Collector
+      COLLECTION_INTERVAL: 120 # 2 minutos
+      MAX_RETRIES: 3
+      RETRY_DELAY: 5
+
+      # Logging
+      LOG_LEVEL: INFO
+      LOG_FILE: logs/collector.log
+    volumes:
+      - collector_logs:/app/logs
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - gdash_network
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import sys; sys.exit(0)'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ============================================================================
+  # 4. WORKER - Consumidor da Fila (Go)
+  # ============================================================================
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    container_name: go_worker_container
+    restart: unless-stopped
+    environment:
+      RABBITMQ_URL: amqp://rabbituser:rabbitpass@rabbitmq:5672/
+      QUEUE_NAME: weather_queue
+      NESTJS_API_URL: http://api_service:5000/api/weather
+      WORKER_THREADS: 5
+      MAX_RETRIES: 3
+      RETRY_DELAY: 5
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      api_service:
+        condition: service_healthy
+    networks:
+      - gdash_network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # 5. FRONTEND - React + Vite + Tailwind
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: weather_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80" # Nginx serve na porta 80
+      - "443:443" # Para HTTPS (opcional)
+    depends_on:
+      api_service:
+        condition: service_healthy
+    networks:
+      - gdash_network
+    environment:
+      # A URL da API deve ser acessível do navegador do usuário
+      # Use o IP/domínio do seu servidor, não localhost se for acessar de outro PC
+      VITE_API_URL: http://localhost:5000/api
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+# ==============================================================================
+# VOLUMES PERSISTENTES
+# ==============================================================================
+volumes:
+  rabbitmq_data:
+    driver: local
+  collector_logs:
+    driver: local
