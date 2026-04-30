@@ -1,12 +1,12 @@
-# 🌦️ Sistema de Monitoramento Climático 
+# Sistema de Monitoramento Climático
 
 Sistema distribuído para coleta, processamento e visualização de dados meteorológicos em tempo real.
 
-## 📋 Índice
+## Índice
 
 - [Sobre o Projeto](#sobre-o-projeto)
 - [Arquitetura](#arquitetura)
-- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Tecnologias](#tecnologias)
 - [Pré-requisitos](#pré-requisitos)
 - [Instalação](#instalação)
 - [Configuração](#configuração)
@@ -15,95 +15,105 @@ Sistema distribuído para coleta, processamento e visualização de dados meteor
 - [API Endpoints](#api-endpoints)
 - [Funcionalidades](#funcionalidades)
 
-## 🎯 Sobre o Projeto
+---
 
-Este projeto implementa uma arquitetura de microserviços completa para monitoramento climático, integrando múltiplas tecnologias modernas. O sistema coleta dados da API Open-Meteo, processa através de uma fila de mensagens e disponibiliza em uma interface web intuitiva.
+## Sobre o Projeto
+
+Este projeto implementa uma arquitetura de microserviços completa para monitoramento climático, integrando múltiplas tecnologias modernas. O sistema coleta dados da API Open-Meteo, processa-os através de uma fila de mensagens e os disponibiliza em uma interface web intuitiva.
 
 ### Características Principais
 
-- ⏰ Coleta automática de dados climáticos a cada hora
-- 🔄 Processamento assíncrono via mensageria
-- 🔐 Autenticação JWT para acesso seguro
-- 📊 Dashboard interativo com visualizações
-- 📥 Exportação de dados em CSV/XLSX
-- 🤖 Insights de IA sobre dados climáticos
-- 🐳 Totalmente dockerizado
+- Coleta automática de dados climáticos a cada hora
+- Processamento assíncrono via message broker
+- Autenticação JWT para acesso seguro
+- Dashboard interativo com visualizações de dados
+- Exportação de dados em CSV e XLSX
+- Insights gerados por IA sobre os dados climáticos
+- Totalmente containerizado com Docker
 
-## 🏗️ Arquitetura
+---
 
-O sistema é composto por 4 componentes principais:
+## Arquitetura
+
+O sistema é composto por quatro componentes principais:
 
 ```
-┌─────────────────┐
-│ Python Collector│ ──► Coleta dados climáticos (Open-Meteo API)
-└────────┬────────┘
-         │ Publish
-         ▼
-┌─────────────────┐
-│    RabbitMQ     │ ──► Fila de mensagens
-└────────┬────────┘
-         │ Consume
-         ▼
-┌─────────────────┐
-│   Go Worker     │ ──► Processa e envia para API
-└────────┬────────┘
-         │ HTTP POST
-         ▼
-┌─────────────────┐      ┌──────────┐
-│   NestJS API    │ ◄──► │ MongoDB  │
-└────────┬────────┘      └──────────┘
-         │ REST
-         ▼
-┌─────────────────┐
-│ React Frontend  │ ──► Interface do usuário
-└─────────────────┘
++---------------------+
+|  Python Collector   |  -->  Coleta dados climáticos (Open-Meteo API)
++----------+----------+
+           |  Publish
+           v
++---------------------+
+|      RabbitMQ       |  -->  Fila de mensagens
++----------+----------+
+           |  Consume
+           v
++---------------------+
+|     Go Worker       |  -->  Processa e envia para API
++----------+----------+
+           |  HTTP POST
+           v
++---------------------+      +----------+
+|     NestJS API      | <--> |  MongoDB |
++----------+----------+      +----------+
+           |  REST
+           v
++---------------------+
+|   React Frontend    |  -->  Interface do usuário
++---------------------+
 ```
 
 ### Fluxo de Dados
 
-1. **Coleta**: Python busca dados climáticos da API Open-Meteo a cada hora
-2. **Publicação**: Dados são enviados para fila RabbitMQ
-3. **Processamento**: Go Worker consome mensagens e envia para API
-4. **Armazenamento**: NestJS API valida e armazena no MongoDB
-5. **Visualização**: Frontend React exibe dados e insights
+1. **Coleta**: Python busca dados climáticos da API Open-Meteo a cada hora.
+2. **Publicação**: Os dados são enviados para a fila RabbitMQ.
+3. **Processamento**: O Go Worker consome as mensagens e as encaminha para a API.
+4. **Armazenamento**: A API NestJS valida e persiste os dados no MongoDB.
+5. **Visualização**: O frontend React exibe os dados e os insights gerados por IA.
 
-## 🛠️ Tecnologias Utilizadas
+---
+
+## Tecnologias
 
 ### Backend
 
-- **NestJS** - Framework Node.js progressivo
-- **Go** - Worker de alta performance
-- **Python** - Coleta e integração de dados
-- **MongoDB** - Banco de dados NoSQL
-- **RabbitMQ** - Message broker
+- **NestJS** — Framework Node.js progressivo
+- **Go** — Serviço worker de alta performance
+- **Python** — Coleta e integração de dados
+- **MongoDB** — Banco de dados NoSQL
+- **RabbitMQ** — Message broker
 
 ### Frontend
 
-- **React** - Biblioteca UI
-- **Vite** - Build tool
-- **Tailwind CSS** - Framework CSS
-- **shadcn/ui** - Componentes UI
+- **React** — Biblioteca de UI
+- **Vite** — Build tool
+- **Tailwind CSS** — Framework CSS utilitário
+- **shadcn/ui** — Biblioteca de componentes
 
-### DevOps
+### Infraestrutura
 
-- **Docker** - Containerização
-- **Docker Compose** - Orquestração
+- **Docker** — Containerização
+- **Docker Compose** — Orquestração de serviços
 
-## ⚙️ Pré-requisitos
+---
 
-- Docker (versão 20.10+)
-- Docker Compose (versão 2.0+)
-- Node.js 18+ (apenas para desenvolvimento local)
-- Go 1.21+ (apenas para desenvolvimento local)
-- Python 3.11+ (apenas para desenvolvimento local)
+## Pré-requisitos
 
-## 🚀 Instalação
+- Docker 20.10+
+- Docker Compose 2.0+
+- Node.js 18+ *(apenas para desenvolvimento local)*
+- Go 1.21+ *(apenas para desenvolvimento local)*
+- Python 3.11+ *(apenas para desenvolvimento local)*
+
+---
+
+## Instalação
 
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/FelipeAraujoBS/desafio-gdash-2025-02.git
-cd desafio-gdash-2025-02
+git clone https://github.com/FelipeAraujoBS/weather-monitoring-system.git
+cd weather-monitoring-system
 ```
 
 ### 2. Configure as variáveis de ambiente
@@ -136,68 +146,70 @@ WEATHER_LOCATION_LON=-38.5014
 VITE_API_URL=http://localhost:3000
 ```
 
-### 3. Execute com Docker Compose
+### 3. Inicie com Docker Compose
 
 ```bash
 docker-compose up -d
 ```
 
-Isso irá iniciar todos os serviços:
+Todos os serviços serão iniciados:
 
-- **Frontend**: http://localhost:5173
-- **API**: http://localhost:3000
-- **RabbitMQ Management**: http://localhost:15672 (guest/guest)
-- **MongoDB**: localhost:27017
+| Serviço | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| API | http://localhost:3000 |
+| RabbitMQ Management | http://localhost:15672 |
+| MongoDB | localhost:27017 |
 
-## 🔧 Configuração
+---
+
+## Configuração
 
 ### Usuário Padrão
 
-O sistema cria automaticamente um usuário padrão:
+O sistema cria automaticamente uma conta de administrador padrão:
 
-- **Email**: admin@gdash.com
+- **E-mail**: admin@admin.com
 - **Senha**: admin123
 
-⚠️ **Importante**: Altere essas credenciais após o primeiro login!
+> **Importante**: Altere essas credenciais imediatamente após o primeiro login.
 
 ### Localização para Coleta de Dados
 
-Por padrão, o sistema coleta dados climáticos de Salvador, Bahia, Brasil. Para alterar:
+Por padrão, o sistema coleta dados climáticos de Salvador, Bahia, Brasil. Para alterar a localização, atualize as seguintes variáveis no arquivo `.env`:
 
 ```env
-WEATHER_LOCATION_LAT=-23.5505  # Latitude
-WEATHER_LOCATION_LON=-46.6333  # Longitude
+WEATHER_LOCATION_LAT=-23.5505
+WEATHER_LOCATION_LON=-46.6333
 ```
 
-## 📖 Uso
+---
+
+## Uso
 
 ### Acesso ao Sistema
 
 1. Acesse http://localhost:5173
 2. Faça login com as credenciais padrão
-3. Explore o dashboard com dados climáticos
+3. Explore o dashboard com os dados climáticos em tempo real
 
 ### Principais Recursos
 
-#### Dashboard
+**Dashboard**
 
-- Visualize dados climáticos em tempo real
-- Gráficos interativos de temperatura, umidade, etc.
-- Insights gerados por IA
+Visualize dados climáticos em tempo real, incluindo gráficos interativos de temperatura, umidade e outras métricas, além de insights gerados por IA.
 
-#### Gestão de Dados
+**Gestão de Dados**
 
-- Visualize histórico completo
-- Filtre por período
-- Exporte em CSV ou XLSX
+Consulte o histórico completo de dados, filtre por período e exporte registros em CSV ou XLSX.
 
-#### Administração
+**Administração**
 
-- CRUD de usuários
-- Gerenciamento de permissões
-- Logs de sistema
+Gerencie usuários com operações CRUD completas, controle permissões e acompanhe logs do sistema.
 
-## 📁 Estrutura do Projeto
+---
+
+## Estrutura do Projeto
 
 ```
 .
@@ -213,30 +225,32 @@ WEATHER_LOCATION_LON=-46.6333  # Longitude
 ├── collector/              # Python Collector
 │   ├── src/
 │   │   ├── collector.py   # Coleta de dados
-│   │   └── publisher.py   # RabbitMQ publisher
+│   │   └── publisher.py   # Publisher RabbitMQ
 │   ├── Dockerfile
 │   └── requirements.txt
 │
 ├── worker/                 # Go Worker
-│   ├── main.go            # Consumer + HTTP client
+│   ├── main.go            # Consumer e HTTP client
 │   ├── Dockerfile
 │   └── go.mod
 │
 ├── frontend/               # React Frontend
 │   ├── src/
 │   │   ├── components/    # Componentes React
-│   │   ├── pages/         # Páginas
-│   │   ├── services/      # API clients
+│   │   ├── pages/         # Páginas da aplicação
+│   │   ├── services/      # Clientes de API
 │   │   └── App.tsx
 │   ├── Dockerfile
 │   └── package.json
 │
-├── docker-compose.yml      # Orquestração
-├── .env.example           # Variáveis de ambiente
+├── docker-compose.yml      # Orquestração de serviços
+├── .env.example            # Modelo de variáveis de ambiente
 └── README.md
 ```
 
-## 🔌 API Endpoints
+---
+
+## API Endpoints
 
 ### Autenticação
 
@@ -245,7 +259,7 @@ POST /api/auth/login
 Content-Type: application/json
 
 {
-  "email": "admin@gdash.com",
+  "email": "admin@admin.com",
   "password": "admin123"
 }
 ```
@@ -253,7 +267,7 @@ Content-Type: application/json
 ### Logs Climáticos
 
 ```http
-# Criar novo log (usado pelo Go Worker)
+# Criar novo log (utilizado pelo Go Worker)
 POST /api/weather/logs
 Authorization: Bearer {token}
 
@@ -261,7 +275,7 @@ Authorization: Bearer {token}
 GET /api/weather/logs?page=1&limit=50
 Authorization: Bearer {token}
 
-# Obter insights
+# Obter insights de IA
 GET /api/weather/logs/insights
 Authorization: Bearer {token}
 
@@ -290,87 +304,76 @@ DELETE /api/users/:id
 Authorization: Bearer {token}
 ```
 
-## ✨ Funcionalidades
+---
 
-### ✅ Backend (NestJS)
+## Funcionalidades
 
-- [x] Setup inicial com TypeScript
-- [x] Conexão MongoDB com Mongoose
-- [x] Autenticação JWT
-- [x] CRUD completo de usuários
-- [x] Endpoints de logs climáticos
-- [x] Exportação CSV/XLSX
-- [x] Geração de insights com IA
-- [x] Validação de dados com class-validator
-- [x] Documentação Swagger
+### Backend (NestJS)
 
-### ✅ Go Worker
+- Setup do projeto com TypeScript
+- Conexão com MongoDB via Mongoose
+- Autenticação JWT
+- CRUD completo de usuários
+- Endpoints de logs climáticos
+- Exportação em CSV e XLSX
+- Geração de insights por IA
+- Validação de dados com class-validator
+- Documentação Swagger
 
-- [x] Conexão RabbitMQ robusta
-- [x] Consumer com retry logic
-- [x] HTTP client para NestJS
-- [x] Logs estruturados
-- [x] Tratamento de erros
-- [x] Graceful shutdown
+### Go Worker
 
-### ✅ Python Collector
+- Conexão robusta com RabbitMQ
+- Consumer com retry logic
+- HTTP client para integração com NestJS
+- Logs estruturados
+- Tratamento de erros
+- Graceful shutdown
 
-- [x] Integração Open-Meteo API
-- [x] Scheduler automático (cron)
-- [x] Publisher RabbitMQ
-- [x] Tratamento de exceções
-- [x] Logs detalhados
-- [x] Retry em falhas
+### Python Collector
 
-### ✅ Frontend (React)
+- Integração com a API Open-Meteo
+- Agendamento automático com cron
+- Publisher RabbitMQ
+- Tratamento de exceções
+- Logs detalhados
+- Retry em caso de falha
 
-- [x] Setup Vite + TypeScript
-- [x] Tailwind CSS + shadcn/ui
-- [x] Tela de login
-- [x] Dashboard com gráficos
-- [x] Tabela de dados responsiva
-- [x] Exportação de dados
-- [x] CRUD de usuários
-- [x] Gerenciamento de estado
-- [x] Rotas protegidas
+### Frontend (React)
 
-### ✅ Infraestrutura
+- Setup com Vite e TypeScript
+- Tailwind CSS e shadcn/ui
+- Tela de login
+- Dashboard com gráficos interativos
+- Tabela de dados responsiva
+- Exportação de dados
+- Interface CRUD de usuários
+- Gerenciamento de estado
+- Rotas protegidas
 
-- [x] Docker Compose funcional
-- [x] Variáveis de ambiente configuráveis
-- [x] Health checks em todos os serviços
-- [x] Volumes para persistência
-- [x] Rede Docker otimizada
+### Infraestrutura
 
-## 🤝 Contribuindo
+- Docker Compose funcional
+- Variáveis de ambiente configuráveis
+- Health checks em todos os serviços
+- Volumes para persistência de dados
+- Rede Docker otimizada
 
-Este é um projeto de desafio técnico, mas sugestões são bem-vindas!
+---
 
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/melhoria`)
-3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/melhoria`)
+## Contribuindo
+
+Contribuições e sugestões são bem-vindas.
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/melhoria`)
+3. Faça commit das suas alterações (`git commit -m 'Adiciona nova feature'`)
+4. Envie para a branch (`git push origin feature/melhoria`)
 5. Abra um Pull Request
 
-## 📝 Licença
+---
 
-Este projeto foi desenvolvido como parte do processo seletivo da GDASH 2025/02.
-
-## 👤 Autor
+## Autor
 
 **Felipe Araujo**
 
 - GitHub: [@FelipeAraujoBS](https://github.com/FelipeAraujoBS)
-- Projeto Original: [GDASH-io/desafio-gdash-2025-02](https://github.com/GDASH-io/desafio-gdash-2025-02)
-
-## 📞 Suporte
-
-Em caso de dúvidas ou problemas:
-
-1. Verifique a [documentação do projeto original](https://github.com/GDASH-io/desafio-gdash-2025-02)
-2. Abra uma issue no repositório
-3. Entre em contato através do processo seletivo
-
----
-
-⭐ **Desenvolvido com dedicação para o desafio GDASH 2025/02**
