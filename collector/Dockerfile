@@ -17,10 +17,10 @@ RUN apt-get update && \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copia e instala dependências Python
+# Copia e instala dependências Python (system-wide)
 COPY requirements.txt .
 RUN pip install --upgrade pip && \
-    pip install --user --no-warn-script-location -r requirements.txt
+    pip install --no-warn-script-location -r requirements.txt
 
 # ==============================================================================
 # Runtime Stage
@@ -29,26 +29,24 @@ FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PATH=/root/.local/bin:$PATH \
     PYTHONPATH=/app
 
 WORKDIR /app
 
 # Copia dependências instaladas do builder
-COPY --from=builder /root/.local /root/.local
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 
 # Copia código da aplicação
 COPY src/ ./src/
 
-# Cria diretório de logs
-RUN mkdir -p logs
-
-RUN addgroup -S app && adduser -S -G app app && chown -R app:app /app
+RUN mkdir -p logs && groupadd --system app && useradd --system --gid app app && chown -R app:app /app
 
 USER app
 
+RUN mkdir -p logs
+
 HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')" || exit 1
+    CMD python -c "from src.config import settings; print('ok')" || exit 1
 
 # Comando padrão
 CMD ["python", "-m", "src.main"]

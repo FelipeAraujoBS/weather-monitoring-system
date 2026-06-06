@@ -14,7 +14,7 @@ import StatsCard from "../Dashboard/StatsCard";
 import WeatherChart from "../Dashboard/WeatherChart";
 import AIInsights from "../Dashboard/AiInsights";
 import { useWeatherData } from "../../hooks/useWeatherData";
-import type { DashboardProps, StatsCardProps } from "../../types";
+import type { StatsCardProps } from "../../types";
 import { Button } from "../common/button";
 import { Alert, AlertDescription, AlertTitle } from "../common/alert";
 import { useAuthContext } from "../../context/AuthContext";

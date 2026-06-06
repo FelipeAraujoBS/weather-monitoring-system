@@ -99,8 +99,6 @@ services:
       # Logging
       LOG_LEVEL: INFO
       LOG_FILE: logs/collector.log
-    volumes:
-      - collector_logs:/app/logs
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -180,6 +178,4 @@ services:
 # ==============================================================================
 volumes:
   rabbitmq_data:
-    driver: local
-  collector_logs:
     driver: local

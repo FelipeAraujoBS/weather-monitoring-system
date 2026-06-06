@@ -6,10 +6,11 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:80,http://localhost:3000,http://localhost:5173').split(',');
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost,http://localhost:80,http://localhost:3000,http://localhost:5173').split(',');
   app.enableCors({
     origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
   });
 

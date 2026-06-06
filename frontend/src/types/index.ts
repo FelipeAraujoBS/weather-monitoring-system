@@ -12,6 +12,10 @@ export interface StatsCardProps {
   iconColor: string;
 }
 
+export interface HeaderProps {
+  onLogout: () => void;
+}
+
 export interface WeatherChartProps {
   data: WeatherData[];
 }
