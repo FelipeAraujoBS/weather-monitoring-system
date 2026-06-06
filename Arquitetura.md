@@ -17,23 +17,23 @@ graph TB
     end
 
     subgraph IA
-        D -->|HTTP| H[AI Module<br/>Gemini/OpenAI]
+        D -->|HTTP| H[AI Module - Gemini/OpenAI]
         H -->|Insights| D
     end
 
     subgraph Frontend
-        F[React + Vite<br/>Nginx] -->|REST + JWT| D
+        F[React + Vite - Nginx] -->|REST + JWT| D
     end
 
     subgraph Seguranca
-        I[JWT Strategy<br/>Passport.js]
+        I[JWT Strategy + Passport.js]
         J[CORS Whitelist]
-        K[AuthGuard<br/>@UseGuards]
+        K[AuthGuard + @UseGuards]
     end
 
-    D --> I
-    D --> J
-    D --> K
+    D -.-> I
+    D -.-> J
+    D -.-> K
 
     style A fill:#3776ab,stroke:#fff,color:#fff
     style B fill:#ff6600,stroke:#fff,color:#fff
