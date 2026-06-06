@@ -1,73 +1,64 @@
-# React + TypeScript + Vite
+# GDASH Frontend — React + Vite + Tailwind
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interface web do sistema de monitoramento climático. Dashboard interativo com dados reais, gráficos, exportação e insights de IA.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Framework:** React 18 + TypeScript
+- **Build:** Vite 5
+- **Estilo:** Tailwind CSS 3
+- **Componentes:** shadcn/ui (Button, Input, Card, Table, Dialog)
+- **Navegação:** React Router DOM 6
+- **HTTP:** Axios com interceptor JWT
 
-## React Compiler
+## Estrutura
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── components/
+│   ├── common/       # Input, ExportButton
+│   └── ui/           # shadcn/ui primitives
+├── hooks/            # useWeatherData
+├── pages/            # LoginPage, RegisterPage, DashboardPage
+├── services/         # weatherApi.ts (axios instance + interceptors)
+├── types/            # WeatherData, AuthResponse
+├── App.tsx
+└── main.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Funcionalidades
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Login/registro com validação inline
+- Dashboard com último registro + histórico
+- Tabela paginada com dados climáticos
+- Geração de insights por IA
+- Exportação em CSV e XLSX
+- Rotas protegidas (redirect se não autenticado)
+- Acessibilidade (aria-*, htmlFor, required, autoComplete)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Scripts
+
+```bash
+npm run dev        # Desenvolvimento (porta 5173)
+npm run build      # Produção → dist/
+npm run preview    # Preview da build
+npm run lint       # ESLint
 ```
+
+## Construção Docker
+
+A `VITE_API_URL` é injetada em **build time** via `build.args` no Docker Compose:
+
+```yaml
+frontend:
+  build:
+    args:
+      VITE_API_URL: http://localhost:5000/api
+```
+
+## Integração com API
+
+Todas as requisições passam pelo interceptor do Axios que:
+1. Anexa `Authorization: Bearer <token>` automaticamente
+2. Em 401, limpa o token e redireciona ao login
+3. Trata erros de rede sem expor detalhes ao usuário

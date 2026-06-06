@@ -1,254 +1,151 @@
-# Sistema de Monitoramento Climático
+# Weather Monitoring System
 
-Sistema distribuído para coleta, processamento e visualização de dados meteorológicos em tempo real.
-
-## Índice
-
-- [Sobre o Projeto](#sobre-o-projeto)
-- [Arquitetura](#arquitetura)
-- [Tecnologias](#tecnologias)
-- [Pré-requisitos](#pré-requisitos)
-- [Instalação](#instalação)
-- [Configuração](#configuração)
-- [Uso](#uso)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [API Endpoints](#api-endpoints)
-- [Funcionalidades](#funcionalidades)
-
----
-
-## Sobre o Projeto
-
-Este projeto implementa uma arquitetura de microserviços completa para monitoramento climático, integrando múltiplas tecnologias modernas. O sistema coleta dados da API Open-Meteo, processa-os através de uma fila de mensagens e os disponibiliza em uma interface web intuitiva.
-
-### Características Principais
-
-- Coleta automática de dados climáticos a cada hora
-- Processamento assíncrono via message broker
-- Autenticação JWT para acesso seguro
-- Dashboard interativo com visualizações de dados
-- Exportação de dados em CSV e XLSX
-- Insights gerados por IA sobre os dados climáticos
-- Totalmente containerizado com Docker
-
----
+Sistema distribuído para coleta, processamento e visualização de dados meteorológicos em tempo real. Construído com 4 serviços independentes (Python, Go, NestJS, React) comunicando-se via RabbitMQ e MongoDB.
 
 ## Arquitetura
 
-O sistema é composto por quatro componentes principais:
-
 ```
-+---------------------+
-|  Python Collector   |  -->  Coleta dados climáticos (Open-Meteo API)
-+----------+----------+
-           |  Publish
-           v
-+---------------------+
-|      RabbitMQ       |  -->  Fila de mensagens
-+----------+----------+
-           |  Consume
-           v
-+---------------------+
-|     Go Worker       |  -->  Processa e envia para API
-+----------+----------+
-           |  HTTP POST
-           v
-+---------------------+      +----------+
-|     NestJS API      | <--> |  MongoDB |
-+----------+----------+      +----------+
-           |  REST
-           v
-+---------------------+
-|   React Frontend    |  -->  Interface do usuário
-+---------------------+
+┌──────────────┐    ┌──────────┐    ┌────────────┐    ┌────────────┐    ┌───────────┐
+│ Open-Meteo   │───>│ Python   │───>│ RabbitMQ   │───>│ Go Worker  │───>│ NestJS    │
+│ API (HTTP)   │    │ Collector│    │ (Queue)    │    │ (Consumer) │    │ API       │
+└──────────────┘    └──────────┘    └────────────┘    └────────────┘    └─────┬─────┘
+                                                                              │
+                                                                     ┌────────v────────┐
+                                                                     │  MongoDB Atlas   │
+                                                                     │  (Weather + User)│
+                                                                     └────────┬────────┘
+                                                                              │
+                                                                     ┌────────v────────┐
+                                                                     │ React Frontend  │
+                                                                     │ (Nginx, port 80)│
+                                                                     └─────────────────┘
 ```
 
-### Fluxo de Dados
+Diagramas detalhados em [Arquitetura.md](./Arquitetura.md).
 
-1. **Coleta**: Python busca dados climáticos da API Open-Meteo a cada hora.
-2. **Publicação**: Os dados são enviados para a fila RabbitMQ.
-3. **Processamento**: O Go Worker consome as mensagens e as encaminha para a API.
-4. **Armazenamento**: A API NestJS valida e persiste os dados no MongoDB.
-5. **Visualização**: O frontend React exibe os dados e os insights gerados por IA.
+## Stack
 
----
-
-## Tecnologias
-
-### Backend
-
-- **NestJS** — Framework Node.js progressivo
-- **Go** — Serviço worker de alta performance
-- **Python** — Coleta e integração de dados
-- **MongoDB** — Banco de dados NoSQL
-- **RabbitMQ** — Message broker
-
-### Frontend
-
-- **React** — Biblioteca de UI
-- **Vite** — Build tool
-- **Tailwind CSS** — Framework CSS utilitário
-- **shadcn/ui** — Biblioteca de componentes
-
-### Infraestrutura
-
-- **Docker** — Containerização
-- **Docker Compose** — Orquestração de serviços
-
----
+| Camada | Tecnologia | Por quê |
+|--------|-----------|---------|
+| **Coleta** | Python 3.11 + requests + pika + loguru | Maturidade para HTTP, ecosistema rico |
+| **Fila** | RabbitMQ 3 | Ack/nack confiável, maturidade |
+| **Worker** | Go 1.21 | Concorrência nativa, performance, binário único |
+| **API** | NestJS + Mongoose + Passport + JWT | Modular, DI, Guards, documentação |
+| **Banco** | MongoDB Atlas | Schema-free, query flexível, gerenciado |
+| **Frontend** | React + Vite + Tailwind + shadcn/ui | Componentização, DX, acessibilidade |
+| **Infra** | Docker Compose | Orquestração local reproduzível |
 
 ## Pré-requisitos
 
-- Docker 20.10+
-- Docker Compose 2.0+
-- Node.js 18+ *(apenas para desenvolvimento local)*
-- Go 1.21+ *(apenas para desenvolvimento local)*
-- Python 3.11+ *(apenas para desenvolvimento local)*
-
----
+- Docker 20.10+ com Docker Compose
+- Docker Desktop rodando (Windows)
+- Conta MongoDB Atlas (gratuita) com cluster ativo
 
 ## Instalação
 
-### 1. Clone o repositório
+### 1. Clone
 
 ```bash
 git clone https://github.com/FelipeAraujoBS/weather-monitoring-system.git
 cd weather-monitoring-system
 ```
 
-### 2. Configure as variáveis de ambiente
+### 2. Configure
 
 ```bash
 cp .env.example .env
 ```
 
-Edite o arquivo `.env` com suas configurações:
+Preencha no `.env`:
 
 ```env
-# MongoDB
-MONGO_URI=mongodb://mongodb:27017/weather-db
-
-# RabbitMQ
-RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
-RABBITMQ_QUEUE=weather_data
-
-# API
-API_PORT=3000
-JWT_SECRET=seu_secret_super_seguro
-API_URL=http://api:3000
-
-# Open-Meteo
-WEATHER_API_URL=https://api.open-meteo.com/v1/forecast
-WEATHER_LOCATION_LAT=-12.9714
-WEATHER_LOCATION_LON=-38.5014
-
-# Frontend
-VITE_API_URL=http://localhost:3000
+MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/weather-db
+JWT_SECRET=uma_chave_forte_aqui
+JWT_EXPIRES_IN=7d
 ```
 
-### 3. Inicie com Docker Compose
+### 3. Inicie
 
 ```bash
-docker-compose up -d
+docker compose up -d --build
 ```
 
-Todos os serviços serão iniciados:
+Aguarde ~30s para todos os serviços ficarem saudáveis.
+
+### 4. Acesse
 
 | Serviço | URL |
-|---|---|
-| Frontend | http://localhost:5173 |
-| API | http://localhost:3000 |
-| RabbitMQ Management | http://localhost:15672 |
-| MongoDB | localhost:27017 |
-
----
-
-## Configuração
-
-### Usuário Padrão
-
-O sistema cria automaticamente uma conta de administrador padrão:
-
-- **E-mail**: admin@admin.com
-- **Senha**: admin123
-
-> **Importante**: Altere essas credenciais imediatamente após o primeiro login.
-
-### Localização para Coleta de Dados
-
-Por padrão, o sistema coleta dados climáticos de Salvador, Bahia, Brasil. Para alterar a localização, atualize as seguintes variáveis no arquivo `.env`:
-
-```env
-WEATHER_LOCATION_LAT=-23.5505
-WEATHER_LOCATION_LON=-46.6333
-```
-
----
+|---------|-----|
+| Frontend | http://localhost |
+| API | http://localhost:5000/api |
+| RabbitMQ UI | http://localhost:15672 (rabbituser / rabbitpass) |
 
 ## Uso
 
-### Acesso ao Sistema
+### Criar conta
 
-1. Acesse http://localhost:5173
-2. Faça login com as credenciais padrão
-3. Explore o dashboard com os dados climáticos em tempo real
+Acesse **http://localhost/register** e crie sua conta.
 
-### Principais Recursos
+### Login
 
-**Dashboard**
+**http://localhost/login** com email e senha cadastrados.
 
-Visualize dados climáticos em tempo real, incluindo gráficos interativos de temperatura, umidade e outras métricas, além de insights gerados por IA.
+### Fluxo completo
 
-**Gestão de Dados**
-
-Consulte o histórico completo de dados, filtre por período e exporte registros em CSV ou XLSX.
-
-**Administração**
-
-Gerencie usuários com operações CRUD completas, controle permissões e acompanhe logs do sistema.
-
----
+1. O **Python Collector** busca dados da Open-Meteo a cada 2 minutos
+2. Publica na fila `weather_queue` do RabbitMQ
+3. O **Go Worker** consome, transforma e envia `POST /api/weather`
+4. A **NestJS API** persiste no MongoDB Atlas
+5. O **Frontend** consulta via REST com JWT e exibe no dashboard
+6. **Insights de IA** podem ser gerados sob demanda para cada registro
 
 ## Estrutura do Projeto
 
 ```
-.
-├── api/                    # NestJS API
+weather-monitoring-system/
+├── api/                      # NestJS (TypeScript)
 │   ├── src/
-│   │   ├── auth/          # Autenticação JWT
-│   │   ├── users/         # Gestão de usuários
-│   │   ├── weather/       # Logs climáticos
+│   │   ├── weather/          # CRUD clima + export + IA insights
+│   │   ├── users/            # CRUD usuários
+│   │   │   └── auth/         # JWT + Passport strategy
+│   │   ├── ai/               # Integração com API de IA
 │   │   └── main.ts
 │   ├── Dockerfile
 │   └── package.json
 │
-├── collector/              # Python Collector
+├── collector/                # Python
 │   ├── src/
-│   │   ├── collector.py   # Coleta de dados
-│   │   └── publisher.py   # Publisher RabbitMQ
+│   │   ├── main.py           # Scheduler + orquestração
+│   │   ├── api_consumer.py   # HTTP client Open-Meteo
+│   │   ├── normalizers/      # Transformação de dados
+│   │   ├── rabbitmq_publisher.py
+│   │   └── config.py         # Pydantic settings
 │   ├── Dockerfile
 │   └── requirements.txt
 │
-├── worker/                 # Go Worker
-│   ├── main.go            # Consumer e HTTP client
+├── worker/                   # Go
+│   ├── internal/worker/
+│   │   ├── consumer.go       # RabbitMQ consumer
+│   │   ├── transformer.go    # Data transformation
+│   │   └── processor.go      # HTTP client para API
+│   ├── main.go
 │   ├── Dockerfile
 │   └── go.mod
 │
-├── frontend/               # React Frontend
+├── frontend/                 # React + Vite + Tailwind
 │   ├── src/
-│   │   ├── components/    # Componentes React
-│   │   ├── pages/         # Páginas da aplicação
-│   │   ├── services/      # Clientes de API
-│   │   └── App.tsx
+│   │   ├── components/       # shadcn/ui components
+│   │   ├── pages/            # Login, Register, Dashboard
+│   │   ├── hooks/            # useWeatherData
+│   │   └── services/         # weatherApi.ts
 │   ├── Dockerfile
 │   └── package.json
 │
-├── docker-compose.yml      # Orquestração de serviços
-├── .env.example            # Modelo de variáveis de ambiente
-└── README.md
+├── docker-compose.yml
+├── .env.example
+├── README.md
+└── Arquitetura.md
 ```
-
----
 
 ## API Endpoints
 
@@ -258,122 +155,109 @@ Gerencie usuários com operações CRUD completas, controle permissões e acompa
 POST /api/auth/login
 Content-Type: application/json
 
+{ "email": "seu@email.com", "password": "sua_senha" }
+
+Response 200:
 {
-  "email": "admin@admin.com",
-  "password": "admin123"
+  "message": "Login successful",
+  "data": {
+    "user": { "_id": "...", "email": "..." },
+    "access_token": "eyJhbGci..."
+  }
 }
 ```
 
-### Logs Climáticos
+### Clima (requer JWT)
 
 ```http
-# Criar novo log (utilizado pelo Go Worker)
-POST /api/weather/logs
-Authorization: Bearer {token}
+GET /api/weather/latest
+Authorization: Bearer <token>
 
-# Listar logs
-GET /api/weather/logs?page=1&limit=50
-Authorization: Bearer {token}
+GET /api/weather/history?page=1&limit=20
+Authorization: Bearer <token>
 
-# Obter insights de IA
-GET /api/weather/logs/insights
-Authorization: Bearer {token}
+GET /api/weather/stats
+Authorization: Bearer <token>
 
-# Exportar dados
-GET /api/weather/logs/export?format=csv
-Authorization: Bearer {token}
+POST /api/weather/:id/insight
+Authorization: Bearer <token>
+
+GET /api/weather/export?format=csv
+Authorization: Bearer <token>
 ```
 
 ### Usuários
 
 ```http
-# Listar usuários
-GET /api/users
-Authorization: Bearer {token}
-
-# Criar usuário
 POST /api/users
-Authorization: Bearer {token}
+Content-Type: application/json
 
-# Atualizar usuário
-PUT /api/users/:id
-Authorization: Bearer {token}
-
-# Deletar usuário
-DELETE /api/users/:id
-Authorization: Bearer {token}
+{ "email": "novo@email.com", "password": "minha_senha" }
 ```
 
----
+## Troubleshooting
 
-## Funcionalidades
+### Login retorna 401 mesmo com credenciais corretas
 
-### Backend (NestJS)
+O token JWT expirava em 1ms — corrigido. Execute:
 
-- Setup do projeto com TypeScript
-- Conexão com MongoDB via Mongoose
-- Autenticação JWT
-- CRUD completo de usuários
-- Endpoints de logs climáticos
-- Exportação em CSV e XLSX
-- Geração de insights por IA
-- Validação de dados com class-validator
-- Documentação Swagger
+```bash
+docker compose restart api_service
+```
 
-### Go Worker
+### Collector reinicia em loop
 
-- Conexão robusta com RabbitMQ
-- Consumer com retry logic
-- HTTP client para integração com NestJS
-- Logs estruturados
-- Tratamento de erros
-- Graceful shutdown
+```bash
+docker compose logs collector --tail=30
+```
 
-### Python Collector
+Problema comum: módulo `requests` não encontrado. Solução:
 
-- Integração com a API Open-Meteo
-- Agendamento automático com cron
-- Publisher RabbitMQ
-- Tratamento de exceções
-- Logs detalhados
-- Retry em caso de falha
+```bash
+docker compose build --no-cache collector
+docker compose up -d collector
+```
 
-### Frontend (React)
+### Worker não consome da fila
 
-- Setup com Vite e TypeScript
-- Tailwind CSS e shadcn/ui
-- Tela de login
-- Dashboard com gráficos interativos
-- Tabela de dados responsiva
-- Exportação de dados
-- Interface CRUD de usuários
-- Gerenciamento de estado
-- Rotas protegidas
+```bash
+docker compose logs worker --tail=20
+```
 
-### Infraestrutura
+Se aparecer `NOT_FOUND - no queue`, o collector não está rodando. Verifique os logs do collector primeiro.
 
-- Docker Compose funcional
-- Variáveis de ambiente configuráveis
-- Health checks em todos os serviços
-- Volumes para persistência de dados
-- Rede Docker otimizada
+### Frontend inacessível em http://localhost
 
----
+```bash
+docker compose logs frontend --tail=20
+```
 
-## Contribuindo
+Verifique se a porta 80 não está ocupada por outro serviço (IIS, Apache).
 
-Contribuições e sugestões são bem-vindas.
+## O que este projeto demonstra
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/melhoria`)
-3. Faça commit das suas alterações (`git commit -m 'Adiciona nova feature'`)
-4. Envie para a branch (`git push origin feature/melhoria`)
-5. Abra um Pull Request
+| Habilidade | Onde |
+|-----------|------|
+| **Sistemas distribuídos** | 4 serviços independentes, fila de mensagens |
+| **Multi-linguagem** | Python, Go, TypeScript, shell script |
+| **Autenticação JWT** | Passport + Strategy + Guards |
+| **Containerização** | Docker multi-stage, healthchecks, non-root |
+| **Integração com APIs** | Open-Meteo, Gemini/OpenAI |
+| **Observabilidade** | Logs estruturados, healthchecks |
+| **Segurança** | CORS whitelist, validação, JWT, non-root |
+| **Banco NoSQL** | MongoDB Atlas, Mongoose schemas |
 
----
+## Aprendizados
 
-## Autor
+Durante o desenvolvimento, os principais desafios enfrentados foram:
 
-**Felipe Araujo**
+- **Gerenciamento de conexão RabbitMQ** — Implementar reconexão automática no Python e graceful shutdown no Go com `context.WithCancel` + `sync.WaitGroup`
+- **Auth JWT cross-module** — No NestJS, o `JwtStrategy` precisa ser exportado pelo `AuthModule` e importado por quem usa `@UseGuards(AuthGuard('jwt'))`
+- **Docker multi-stage caching** — `pip install --user` combinado com `COPY --from=builder` gerou pacotes não encontrados em runtime; solução foi instalar system-wide
+- **Volumes persistentes com permissão** — Volume Docker mantinha `/app/logs` como root; removido em favor de diretório criado pelo `app` user no Dockerfile
+- **JWT_EXPIRES_IN** — Valor `1` era interpretado como 1 milissegundo, causando expiração instantânea do token
+- **VITE_API_URL em build time** — Variáveis `VITE_` precisam estar em `build.args` no Docker Compose, não em `environment`
 
-- GitHub: [@FelipeAraujoBS](https://github.com/FelipeAraujoBS)
+## Licença
+
+MIT
