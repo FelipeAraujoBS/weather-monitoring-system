@@ -12,7 +12,9 @@ import {
   NotFoundException,
   Param,
   Res,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { WeatherService } from './weather.service';
 import { CreateWeatherDto } from './dto/create-weather.dto';
 import { QueryWeatherDto } from './dto/query-weather.dto';
@@ -21,6 +23,8 @@ import { type Response } from 'express';
 @Controller('weather')
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
 export class WeatherController {
+  // POST /api/weather - recebe dados do Go Worker (sem auth, chamada interna)
+  // Demais endpoints exigem autenticação
   constructor(private readonly weatherService: WeatherService) {}
 
   // 1. ENDPOINT DE RECEBIMENTO (Para o Go Worker)
@@ -37,6 +41,7 @@ export class WeatherController {
 
   // 2. ENDPOINT PARA DADOS MAIS RECENTES
   // Rota: GET /api/weather/latest
+  @UseGuards(AuthGuard('jwt'))
   @Get('latest')
   async getLatest(@Query('city') city?: string) {
     const data = await this.weatherService.getLatest(city);
@@ -57,6 +62,7 @@ export class WeatherController {
 
   // 3. ENDPOINT PARA HISTÓRICO COM FILTROS
   // Rota: GET /api/weather/history
+  @UseGuards(AuthGuard('jwt'))
   @Get('history')
   async getHistory(@Query() query: QueryWeatherDto) {
     const data = await this.weatherService.getHistory(query);
@@ -70,6 +76,7 @@ export class WeatherController {
 
   // 4. ENDPOINT PARA ESTATÍSTICAS
   // Rota: GET /api/weather/stats
+  @UseGuards(AuthGuard('jwt'))
   @Get('stats')
   async getStats(
     @Query('city') city?: string,
@@ -86,6 +93,7 @@ export class WeatherController {
 
   // 5. ENDPOINT PARA GERAR INSIGHT COM IA
   // Rota: POST /api/weather/:id/insight
+  @UseGuards(AuthGuard('jwt'))
   @Post(':id/insight')
   async generateInsight(@Param('id') id: string) {
     const updatedWeather =
@@ -101,6 +109,7 @@ export class WeatherController {
     };
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get('export')
   async exportData(
     @Query() query: QueryWeatherDto,
@@ -126,7 +135,6 @@ export class WeatherController {
       // Se der erro, retorna JSON com mensagem
       res.status(500).json({
         message: 'Erro ao exportar dados',
-        error: error.message,
       });
     }
   }

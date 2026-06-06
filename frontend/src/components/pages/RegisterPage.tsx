@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
 import { Cloud } from "lucide-react";
 import Input from "../common/Input";
 import { Button } from "../common/button";
@@ -18,23 +19,25 @@ const RegisterPage: React.FC = () => {
     confirmPassword: "",
   });
 
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({});
+
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
+    const errors: { email?: string; password?: string; confirmPassword?: string } = {};
     const { email, password, confirmPassword } = formData;
 
-    if (!email || !password || !confirmPassword) {
-      alert("Por favor, preencha todos os campos.");
-      return;
-    } else if (password !== confirmPassword) {
-      alert("As senhas não coincidem.");
-      return;
-    }
+    if (!email) errors.email = "Email é obrigatório";
+    if (!password) errors.password = "Senha é obrigatória";
+    else if (password.length < 8) errors.password = "Mínimo de 8 caracteres";
+    if (password !== confirmPassword) errors.confirmPassword = "Senhas não coincidem";
+
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) return;
 
     try {
       await register({ email, password });
-
-      // Navega para o Dashboard.
       navigate("/dashboard", { replace: true });
     } catch (err) {
       console.error(err);
@@ -51,12 +54,14 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
 
   if (isAuthenticated) {
-    navigate("/dashboard", { replace: true });
-    return null;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const handleChange = (field: keyof FormData, value: string): void => {
     setFormData({ ...formData, [field]: value });
+    if (fieldErrors[field as keyof typeof fieldErrors]) {
+      setFieldErrors({ ...fieldErrors, [field]: undefined });
+    }
   };
 
   return (
@@ -71,38 +76,54 @@ const RegisterPage: React.FC = () => {
           Criar Conta
         </h2>
 
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Input
+            id="register-email"
             label="Email"
             type="email"
             value={formData.email}
             onChange={(e) => handleChange("email", e.target.value)}
             placeholder="seu@email.com"
+            autoComplete="email"
+            required
+            error={fieldErrors.email}
           />
 
           <Input
+            id="register-password"
             label="Senha"
             type="password"
             value={formData.password}
             onChange={(e) => handleChange("password", e.target.value)}
             placeholder="••••••••"
+            autoComplete="new-password"
+            required
+            error={fieldErrors.password}
           />
 
           <Input
+            id="register-confirm-password"
             label="Confirmar Senha"
             type="password"
             value={formData.confirmPassword}
             onChange={(e) => handleChange("confirmPassword", e.target.value)}
             placeholder="••••••••"
+            autoComplete="new-password"
+            required
+            error={fieldErrors.confirmPassword}
           />
 
+          {authError && (
+            <p className="text-red-500 text-sm text-center font-medium">{authError}</p>
+          )}
+
           <Button
-            onClick={handleSubmit}
+            type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
-            Cadastrar
+            {isLoading ? "Cadastrando..." : "Cadastrar"}
           </Button>
-        </div>
+        </form>
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Já tem uma conta?{" "}

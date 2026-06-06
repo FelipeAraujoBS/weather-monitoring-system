@@ -113,8 +113,7 @@ export const useWeatherData = (): UseWeatherDataReturn => {
       console.log("📦 Resposta completa:", response);
 
       // ✅ Extrai o aiInsight de dentro de data.aiInsight
-      const insight =
-        response.data?.aiInsight || response.data.aiInsight || response;
+      const insight = response.data?.aiInsight ?? response;
 
       console.log("✅ Insight extraído:", insight);
 
@@ -127,7 +126,7 @@ export const useWeatherData = (): UseWeatherDataReturn => {
       console.error("❌ Erro ao gerar insight:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Erro ao gerar insight";
-      alert(`Erro: ${errorMessage}`);
+      setError(errorMessage);
     } finally {
       setGeneratingInsight(false);
     }

@@ -43,9 +43,12 @@ COPY src/ ./src/
 # Cria diretório de logs
 RUN mkdir -p logs
 
-# Health check
+RUN addgroup -S app && adduser -S -G app app && chown -R app:app /app
+
+USER app
+
 HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import sys; sys.exit(0)"
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')" || exit 1
 
 # Comando padrão
 CMD ["python", "-m", "src.main"]

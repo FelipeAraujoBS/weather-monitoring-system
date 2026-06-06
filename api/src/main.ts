@@ -6,12 +6,17 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  // Habilita CORS (se o frontend estiver em um domínio diferente)
-  app.enableCors();
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:80,http://localhost:3000,http://localhost:5173').split(',');
+  app.enableCors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
+  });
 
-  await app.listen(process.env.PORT || 3001);
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
   console.log(
-    `HTTP Server is running on: http://localhost:${process.env.PORT || '3001'}/api`,
+    `HTTP Server is running on: http://localhost:${port}/api`,
   );
 }
 bootstrap();

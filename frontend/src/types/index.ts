@@ -12,38 +12,8 @@ export interface StatsCardProps {
   iconColor: string;
 }
 
-export interface InputProps {
-  label: string;
-  type?: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-}
-
-export interface HeaderProps {
-  onLogout: () => void;
-}
-
 export interface WeatherChartProps {
   data: WeatherData[];
-}
-
-export interface LoginPageProps {
-  onLogin: () => void;
-  onNavigateToRegister: () => void;
-}
-
-export interface RegisterPageProps {
-  onRegister: () => void;
-  onNavigateToLogin: () => void;
-}
-
-export interface DashboardProps {
-  onLogout: () => void;
-}
-
-export interface LandingPageProps {
-  onGetStarted: () => void;
 }
 
 export interface Insight {
@@ -159,27 +129,9 @@ export interface AuthResponse {
   data: {
     access_token: string;
   };
-  acess_token: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-  };
 }
 
 export interface User {
   id: string;
   email: string;
-  name: string;
 }
-
-// ==================== CHART DATA ====================
-
-export interface WeatherData {
-  time: string;
-  temperature: number;
-  humidity: number;
-  windSpeed: number;
-}
-
-export type PageType = "landing" | "login" | "register" | "dashboard";

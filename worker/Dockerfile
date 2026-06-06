@@ -30,7 +30,6 @@ COPY --from=builder /worker /app/worker
 RUN chmod +x /app/worker
 
 USER app
-EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s CMD ["/app/worker", "healthcheck"] || exit 1
 
 CMD ["/app/worker"]

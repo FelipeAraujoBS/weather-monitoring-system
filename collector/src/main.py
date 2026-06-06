@@ -2,6 +2,7 @@
 Aplicação principal do Collector
 """
 import time
+import requests
 import schedule
 from src.api_consumer import APIConsumer
 from src.normalizers.data_normalizer import DataNormalizer
@@ -12,34 +13,36 @@ from src.utils.logger import log
 
 class Collector:
     """Orquestra a coleta, normalização e envio de dados"""
-    
-    def __init__(self):
-        self.api_consumer = APIConsumer()
-        self.normalizer = DataNormalizer()
-        self.publisher = RabbitMQPublisher()
-    
+
+    def __init__(self, api_consumer=None, normalizer=None, publisher=None):
+        self.api_consumer = api_consumer or APIConsumer()
+        self.normalizer = normalizer or DataNormalizer()
+        self.publisher = publisher or RabbitMQPublisher()
+
     def run(self):
         """Executa um ciclo de coleta"""
         try:
             log.info("=" * 60)
             log.info("Iniciando coleta de dados...")
-            
-            # 1. Busca dados da API
+
             raw_data = self.api_consumer.fetch()
             log.info(f"Dados recebidos: {len(raw_data) if isinstance(raw_data, list) else 1} item(s)")
-            
-            # 2. Normaliza os dados
+
             normalized_data = self.normalizer.normalize(raw_data)
             log.info(f"Dados normalizados: {len(normalized_data)} item(s)")
-            
-            # 3. Publica no RabbitMQ
-            count = self.publisher.publish(normalized_data)
-            
-            log.success(f"✓ Coleta finalizada com sucesso! {count} mensagens enviadas")
+
+            if normalized_data:
+                count = self.publisher.publish(normalized_data)
+                log.success(f"✓ Coleta finalizada com sucesso! {count} mensagens enviadas")
+            else:
+                log.warning("Nenhum dado para publicar")
+
             log.info("=" * 60)
-            
+
+        except requests.exceptions.RequestException as e:
+            log.error(f"✗ Erro de rede na coleta: {e}")
         except Exception as e:
-            log.error(f"✗ Erro na coleta: {e}")
+            log.error(f"✗ Erro inesperado na coleta: {e}")
     
     def start_scheduler(self):
         """Inicia o agendador de coletas"""

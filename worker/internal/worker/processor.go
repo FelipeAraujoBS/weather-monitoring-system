@@ -2,11 +2,17 @@ package worker
 
 import (
 	"bytes"
+	"context"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"time"
+
 	"go-rabbitmq-worker/internal/config"
 )
+
+var httpClient = &http.Client{Timeout: 30 * time.Second}
 
 func ProcessAndSend(body []byte, cfg *config.Config) bool {
 	log.Printf("📤 Sending to API: %s", cfg.NestJSAPIURL)
@@ -14,22 +20,30 @@ func ProcessAndSend(body []byte, cfg *config.Config) bool {
 }
 
 func sendToNestJSAPI(body []byte, cfg *config.Config) bool {
-	req, err := http.NewRequest("POST", cfg.NestJSAPIURL, bytes.NewBuffer(body))
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.HTTPTimeout)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "POST", cfg.NestJSAPIURL, bytes.NewBuffer(body))
 	if err != nil {
 		log.Printf("❌ Error creating HTTP request: %v", err)
 		return false
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{Timeout: cfg.HTTPTimeout}
-	resp, err := client.Do(req)
+	req.Header.Set("User-Agent", "GoWorker/1.0")
+
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		log.Printf("❌ Error sending HTTP request: %v", err)
 		return false
 	}
 	defer resp.Body.Close()
 
-	respBody, _ := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("❌ Error reading response body: %v", err)
+		return false
+	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		log.Printf("❌ API returned %d: %s", resp.StatusCode, string(respBody))

@@ -1,7 +1,12 @@
 package worker
 
 import (
+	"context"
 	"log"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -9,12 +14,38 @@ import (
 )
 
 func StartWorker(cfg *config.Config) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+
+	var wg sync.WaitGroup
+
+	go func() {
+		<-sigCh
+		log.Println("🛑 Signal received, shutting down gracefully...")
+		cancel()
+	}()
+
 	for {
+		select {
+		case <-ctx.Done():
+			log.Println("Worker stopped by context")
+			wg.Wait()
+			return
+		default:
+		}
+
 		func() {
 			conn, err := amqp.Dial(cfg.RabbitMQURL)
 			if err != nil {
 				log.Printf("Failed to connect: %v", err)
-				time.Sleep(5 * time.Second)
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(5 * time.Second):
+				}
 				return
 			}
 			defer func() {
@@ -36,17 +67,20 @@ func StartWorker(cfg *config.Config) {
 
 			log.Println("✅ Connected to RabbitMQ")
 
-			if err := consumeMessages(ch, cfg); err != nil {
+			if err := consumeMessages(ctx, ch, cfg); err != nil {
 				log.Printf("Consume error: %v", err)
 			}
 		}()
 
-		log.Println("Reconnecting in 5s...")
-		time.Sleep(5 * time.Second)
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(5 * time.Second):
+		}
 	}
 }
 
-func consumeMessages(ch *amqp.Channel, cfg *config.Config) error {
+func consumeMessages(ctx context.Context, ch *amqp.Channel, cfg *config.Config) error {
 	_, err := ch.QueueDeclarePassive(
 		cfg.QueueName,
 		true,
@@ -78,34 +112,41 @@ func consumeMessages(ch *amqp.Channel, cfg *config.Config) error {
 
 	log.Println("🎧 Waiting for messages...")
 
-	for d := range msgs {
-		log.Printf("📨 Received message from Collector")
-		
-		transformedData, err := TransformCollectorData(d.Body)
-		if err != nil {
-			log.Printf("❌ Error transforming data: %v", err)
-			if err := d.Ack(false); err != nil {
-				log.Printf("Ack error: %v", err)
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("Context cancelled, stopping consumer")
+			return nil
+		case d, ok := <-msgs:
+			if !ok {
+				return nil
 			}
-			continue
-		}
+			log.Printf("📨 Received message from Collector")
 
-		log.Println("✅ Data transformed successfully")
-
-		if ProcessAndSend(transformedData, cfg) {
-			if err := d.Ack(false); err != nil {
-				log.Printf("Ack error: %v", err)
-			} else {
-				log.Println("✅ Message processed and acknowledged")
+			transformedData, err := TransformCollectorData(d.Body)
+			if err != nil {
+				log.Printf("❌ Error transforming data: %v", err)
+				if err := d.Nack(false, false); err != nil {
+					log.Printf("Nack error: %v", err)
+				}
+				continue
 			}
-		} else {
-			if err := d.Nack(false, true); err != nil {
-				log.Printf("Nack error: %v", err)
+
+			log.Println("✅ Data transformed successfully")
+
+			if ProcessAndSend(transformedData, cfg) {
+				if err := d.Ack(false); err != nil {
+					log.Printf("Ack error: %v", err)
+				} else {
+					log.Println("✅ Message processed and acknowledged")
+				}
 			} else {
-				log.Println("⚠️ Message processing failed, message requeued")
+				if err := d.Nack(false, true); err != nil {
+					log.Printf("Nack error: %v", err)
+				} else {
+					log.Println("⚠️ Message processing failed, message requeued")
+				}
 			}
 		}
 	}
-
-	return nil
 }

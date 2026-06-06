@@ -40,13 +40,18 @@ class RabbitMQPublisher:
             log.error(f"Erro ao conectar ao RabbitMQ: {e}")
             raise
 
+    def _is_connected(self) -> bool:
+        if self.connection and not self.connection.is_closed and self.channel and not self.channel.is_closed:
+            return True
+        return False
+
     def publish(self, data: List[Dict]) -> int:
         """Publica uma lista de mensagens no RabbitMQ.""" 
 
-        if not self.channel:
+        if not self._is_connected():
             self.connect()
 
-        count =  0 
+        count = 0
 
         try: 
             for item in data: 
@@ -57,16 +62,15 @@ class RabbitMQPublisher:
                     routing_key=self.queue,
                     body=message,
                     properties=pika.BasicProperties(
-                        delivery_mode=2,  # Mensagem persistente
+                        delivery_mode=2,
                         content_type='application/json'
                     )
                 )
 
-            count += 1
+                count += 1
 
             log.info(f"{count} mensagens publicadas na fila {self.queue} com sucesso.")
             return count
-        
 
         except Exception as e:
             log.error(f"Erro ao publicar mensagem: {e}")

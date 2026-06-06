@@ -10,31 +10,24 @@ class DataNormalizer:
     
     @staticmethod
     def normalize(raw_data: Any, metadata: Dict = None) -> List[Dict]:
-        """
-        Normaliza dados adicionando metadata
-        
-        Args:
-            raw_data: Dados brutos da API
-            metadata: Metadata adicional
-            
-        Returns:
-            Lista de dados normalizados
-        """
+        if not isinstance(raw_data, dict):
+            return []
+
         latitude = raw_data.get("latitude")
         longitude = raw_data.get("longitude")
         current = raw_data.get("current", {})
-        
-        # Converte para lista se necessário
-        items = raw_data if isinstance(raw_data, list) else [raw_data]
-        
+
+        if not current:
+            return []
+
         normalized_item = {
             "data": {
                 "location": {
                     "latitude": latitude,
                     "longitude": longitude,
-                    "city": "Salvador",  # Você pode adicionar o nome da cidade
-                    "state": "BA",
-                    "country": "Brazil"
+                    "city": current.get("city", "Salvador"),
+                    "state": current.get("state", "BA"),
+                    "country": current.get("country", "Brazil")
                 },
                 "weather": {
                     "timestamp": current.get("time"),
@@ -51,7 +44,7 @@ class DataNormalizer:
                 "data_type": "weather_forecast"
             }
         }
-        
+
         return [normalized_item]
     
     @staticmethod

@@ -55,21 +55,27 @@ const LoginPage: React.FC = () => {
           Login
         </h2>
 
-        <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Input
+            id="login-email"
             label="Email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="seu@email.com"
+            autoComplete="email"
+            required
           />
 
           <Input
+            id="login-password"
             label="Senha"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
+            autoComplete="current-password"
+            required
           />
 
           {authError && (
@@ -79,12 +85,12 @@ const LoginPage: React.FC = () => {
           )}
 
           <Button
-            onClick={handleSubmit}
+            type="submit"
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
-            Entrar
+            {isLoading ? "Entrando..." : "Entrar"}
           </Button>
-        </div>
+        </form>
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Não tem uma conta?{" "}

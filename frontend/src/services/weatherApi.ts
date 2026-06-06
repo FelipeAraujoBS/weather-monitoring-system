@@ -27,11 +27,11 @@ export class WeatherApiService {
       });
 
       if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: `Erro ${response.status}` }));
         if (response.status === 401) {
           AuthApiService.removeToken();
           window.location.href = "/login";
         }
-        const error = await response.json();
         throw new Error(error.message || `Erro ${response.status}`);
       }
 
@@ -174,6 +174,7 @@ export class WeatherApiService {
         if (response.status === 401) {
           AuthApiService.removeToken();
           window.location.href = "/login";
+          return;
         }
         throw new Error(`Erro ao exportar: ${response.status}`);
       }

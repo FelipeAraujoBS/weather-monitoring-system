@@ -75,13 +75,14 @@ func TransformCollectorData(rawData []byte) ([]byte, error) {
 		return nil, fmt.Errorf("erro ao fazer parse: %w", err)
 	}
 
-	timestamp, err := time.Parse("2006-01-02T15:04", collectorData.Data.Weather.Timestamp)
+	timestamp, err := time.Parse(time.RFC3339, collectorData.Data.Weather.Timestamp)
 	if err != nil {
-		log.Printf("⚠️ Erro ao converter timestamp, usando horário atual: %v", err)
-		timestamp = time.Now()
+		timestamp, err = time.Parse("2006-01-02T15:04", collectorData.Data.Weather.Timestamp)
+		if err != nil {
+			log.Printf("⚠️ Erro ao converter timestamp, usando horário atual: %v", err)
+			timestamp = time.Now()
+		}
 	}
-
-	feelsLike := collectorData.Data.Weather.TemperatureCelsius + 2.0
 
 	state := collectorData.Data.Location.State
 	if state == "BA" {
@@ -106,9 +107,9 @@ func TransformCollectorData(rawData []byte) ([]byte, error) {
 		},
 		Current: Current{
 			Temperature:              collectorData.Data.Weather.TemperatureCelsius,
-			FeelsLike:                feelsLike,
+			FeelsLike:                collectorData.Data.Weather.TemperatureCelsius,
 			Humidity:                 collectorData.Data.Weather.HumidityPercent,
-			Pressure:                 1013, 
+			Pressure:                 1013,
 			WindSpeed:                collectorData.Data.Weather.WindSpeedKmh,
 			WindDirection:            0,
 			UvIndex:                  5,
@@ -120,8 +121,8 @@ func TransformCollectorData(rawData []byte) ([]byte, error) {
 			PrecipitationProbability: 0,
 		},
 		Daily: Daily{
-			TempMin: collectorData.Data.Weather.TemperatureCelsius - 3.0,
-			TempMax: collectorData.Data.Weather.TemperatureCelsius + 5.0,
+			TempMin: collectorData.Data.Weather.TemperatureCelsius,
+			TempMax: collectorData.Data.Weather.TemperatureCelsius,
 		},
 		Source: collectorData.Metadata.Source,
 	}
